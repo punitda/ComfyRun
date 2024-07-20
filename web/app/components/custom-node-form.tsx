@@ -26,30 +26,38 @@ import { useFetcher } from "@remix-run/react";
 
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 
-export default function CustomNodeForm() {
+export interface CustomNodeFormProps {
+  onNextStep: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
+}
+export default function CustomNodeForm({ onNextStep }: CustomNodeFormProps) {
   return (
-    <div className="px-4 py-6 sm:p-8">
-      <div className="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-        <div className="sm:col-span-4">
-          <UploadWorkflowFileForm />
-        </div>
-        <div className="relative sm:col-span-4">
-          <div
-            aria-hidden="true"
-            className="absolute inset-0 flex items-center"
-          >
-            <div className="w-full border-t border-gray-300" />
+    <div>
+      <div className="px-4 py-6 sm:p-8">
+        <div className="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+          <div className="sm:col-span-4">
+            <UploadWorkflowFileForm />
           </div>
-          <div className="relative flex justify-center">
-            <span className="bg-white px-2 text-sm text-primary">OR</span>
+          <div className="relative sm:col-span-4">
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 flex items-center"
+            >
+              <div className="w-full border-t border-gray-300" />
+            </div>
+            <div className="relative flex justify-center">
+              <span className="bg-white px-2 text-sm text-primary">OR</span>
+            </div>
+          </div>
+          <div className="sm:col-span-4">
+            <Label>Add Custom Nodes</Label>
+            <div className="mt-2">
+              <CustomNodesComboBox nodes={custom_nodes} />
+            </div>
           </div>
         </div>
-        <div className="sm:col-span-4">
-          <Label>Add Custom Nodes</Label>
-          <div className="mt-2">
-            <CustomNodesComboBox nodes={custom_nodes} />
-          </div>
-        </div>
+      </div>
+      <div className="flex items-center justify-end gap-x-6 border-t border-gray-900/10 px-4 py-4 sm:px-8">
+        <Button onClick={onNextStep}>Next</Button>
       </div>
     </div>
   );
