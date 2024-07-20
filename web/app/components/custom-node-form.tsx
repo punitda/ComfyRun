@@ -33,6 +33,17 @@ export default function CustomNodeForm() {
             <Input id="workflow-file" type="file" />
           </div>
         </div>
+        <div className="relative sm:col-span-4">
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 flex items-center"
+          >
+            <div className="w-full border-t border-gray-300" />
+          </div>
+          <div className="relative flex justify-center">
+            <span className="bg-white px-2 text-sm text-primary">OR</span>
+          </div>
+        </div>
         <div className="sm:col-span-4">
           <Label>Add Custom Nodes</Label>
           <div className="mt-2">
@@ -50,8 +61,28 @@ interface CustomNodesComboxBoxProps {
 
 function CustomNodesComboBox({ nodes }: CustomNodesComboxBoxProps) {
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState("");
+  const [selectedNodes, setSelectedNodes] = useState<CustomNode[]>([]);
 
+  function onSelected(node: CustomNode) {
+    const prevSelectedNodes = selectedNodes;
+    if (
+      prevSelectedNodes.some(
+        (selectedModel) =>
+          selectedModel.reference + selectedModel.title ===
+          node.reference + node.title
+      )
+    ) {
+      setSelectedNodes(
+        prevSelectedNodes.filter(
+          (selectedModel) =>
+            selectedModel.reference + selectedModel.title !==
+            node.reference + node.title
+        )
+      );
+    } else {
+      setSelectedNodes([...prevSelectedNodes, node]);
+    }
+  }
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -61,9 +92,9 @@ function CustomNodesComboBox({ nodes }: CustomNodesComboxBoxProps) {
           aria-expanded={open}
           className="w-full justify-between"
         >
-          {value
-            ? nodes.find((node) => node.title === value)?.title
-            : "Select Node..."}
+          {selectedNodes.length == 0
+            ? "Select nodes"
+            : `Selected nodes : ${selectedNodes.length}`}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -75,17 +106,21 @@ function CustomNodesComboBox({ nodes }: CustomNodesComboxBoxProps) {
             <CommandGroup>
               {nodes.map((node) => (
                 <CommandItem
-                  key={node.reference}
-                  value={node.title}
-                  onSelect={(currentValue) => {
-                    setValue(currentValue === value ? "" : currentValue);
-                    setOpen(false);
+                  key={node.reference + node.title}
+                  value={node.reference}
+                  onSelect={() => {
+                    onSelected(node);
                   }}
                 >
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      value === node.reference ? "opacity-100" : "opacity-0"
+                      selectedNodes.some(
+                        (selectedNode) =>
+                          selectedNode.reference === node.reference
+                      )
+                        ? "opacity-100"
+                        : "opacity-0"
                     )}
                   />
                   {node.title}
