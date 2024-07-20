@@ -13,3 +13,15 @@ export interface CustomNode {
   title: string;
   reference: string;
 }
+
+export interface Model {
+  name: string;
+  type: string;
+  save_path: string;
+  reference: string;
+  url: string;
+  filename: string;
+  base: string;
+  description: string;
+  size: string;
+}
