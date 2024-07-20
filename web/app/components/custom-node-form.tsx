@@ -24,6 +24,8 @@ import { cn } from "~/lib/utils";
 import { custom_nodes } from "~/lib/data";
 import { useFetcher } from "@remix-run/react";
 
+import { InformationCircleIcon } from "@heroicons/react/24/outline";
+
 export default function CustomNodeForm() {
   return (
     <div className="px-4 py-6 sm:p-8">
@@ -147,7 +149,22 @@ function UploadWorkflowFileForm() {
   return (
     <fetcher.Form action="/create-machine" method="post">
       <input type="hidden" name="create-machine-action" value="WORKFLOW_FILE" />
-      <Label htmlFor="workflow-file">Upload workflow file</Label>
+      <div className="flex items-center space-x-2">
+        <Label htmlFor="workflow-file">Upload workflow file</Label>
+        <Popover>
+          <PopoverTrigger asChild>
+            <InformationCircleIcon className="size-6 text-primary/70" />
+          </PopoverTrigger>
+          <PopoverContent className="w-80">
+            <p className="text-primary/90 text-sm mt-1">
+              If you are not sure which custom nodes are used in your workflow,
+              please upload the workflow file and we can generate the list of
+              custom nodes required to be installed :)
+            </p>
+          </PopoverContent>
+        </Popover>
+      </div>
+
       <div className="flex w-full max-w-sm items-center space-x-2 mt-2">
         <Input
           id="workflow-file"
