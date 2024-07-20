@@ -25,3 +25,12 @@ export interface Model {
   description: string;
   size: string;
 }
+
+export enum GPU {
+  Any = "any",
+  L4 = "L4",
+  T4 = "T4",
+  A10G = "A10G",
+  A100 = "A100",
+  H100 = "H100",
+}
