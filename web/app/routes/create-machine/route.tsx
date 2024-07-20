@@ -6,6 +6,7 @@ import CustomNodeForm from "~/components/custom-node-form";
 import type { ActionFunctionArgs } from "@remix-run/node";
 import { useState } from "react";
 import ModelsForm from "~/components/models-form";
+import GpuForm from "~/components/gpu-form";
 
 const initialSteps: FormStep[] = [
   { id: "01", name: "Nodes", href: "#", status: "current" },
@@ -73,6 +74,14 @@ export default function Index() {
                 onBackStep={(e) => {
                   e.preventDefault();
                   updateSteps(steps, 0);
+                }}
+              />
+            ) : null}
+            {currentStep?.name == "GPU" ? (
+              <GpuForm
+                onBackStep={(e) => {
+                  e.preventDefault();
+                  updateSteps(steps, 1);
                 }}
               />
             ) : null}
