@@ -18,16 +18,17 @@ import {
   PopoverTrigger,
 } from "~/components/ui/popover";
 
-import { models } from "~/lib/data";
 import { cn } from "~/lib/utils";
 import { Model } from "~/lib/types";
 
 export interface ModelsFormProps {
+  models: Model[];
   onNextStep: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
   onBackStep: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 }
 
 export default function ModelsForm({
+  models,
   onNextStep,
   onBackStep,
 }: ModelsFormProps) {

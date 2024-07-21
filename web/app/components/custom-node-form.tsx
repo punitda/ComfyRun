@@ -21,15 +21,18 @@ import { CustomNode } from "~/lib/types";
 
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "~/lib/utils";
-import { custom_nodes } from "~/lib/data";
 import { useFetcher } from "@remix-run/react";
 
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 
 export interface CustomNodeFormProps {
+  nodes: CustomNode[];
   onNextStep: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 }
-export default function CustomNodeForm({ onNextStep }: CustomNodeFormProps) {
+export default function CustomNodeForm({
+  nodes,
+  onNextStep,
+}: CustomNodeFormProps) {
   return (
     <div>
       <div className="px-4 py-6 sm:p-8">
@@ -51,7 +54,7 @@ export default function CustomNodeForm({ onNextStep }: CustomNodeFormProps) {
           <div className="sm:col-span-4">
             <Label>Add Custom Nodes</Label>
             <div className="mt-2">
-              <CustomNodesComboBox nodes={custom_nodes} />
+              <CustomNodesComboBox nodes={nodes} />
             </div>
           </div>
         </div>

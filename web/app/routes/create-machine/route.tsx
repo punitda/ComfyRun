@@ -1,4 +1,4 @@
-import { json } from "@remix-run/react";
+import { json, useLoaderData } from "@remix-run/react";
 
 import { FormStep, FormStepStatus } from "~/lib/types";
 import FormNav from "~/components/form-nav";
@@ -7,6 +7,7 @@ import type { ActionFunctionArgs } from "@remix-run/node";
 import { useState } from "react";
 import ModelsForm from "~/components/models-form";
 import GpuForm from "~/components/gpu-form";
+import { getCustomNodes, getModels } from "../../server/github";
 
 const initialSteps: FormStep[] = [
   { id: "01", name: "Nodes", href: "#", status: "current" },
@@ -27,7 +28,17 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   return json({ ok: value }, { status: 200 });
 };
 
+export const loader = async () => {
+  const [custom_nodes, models] = await Promise.all([
+    getCustomNodes(),
+    getModels(),
+  ]);
+
+  return json({ custom_nodes, models }, { status: 200 });
+};
+
 export default function Index() {
+  const { custom_nodes, models } = useLoaderData<typeof loader>();
   const [steps, setSteps] = useState<FormStep[]>(initialSteps);
   const currentStep = steps.find((step) => step.status == "current");
 
@@ -59,6 +70,7 @@ export default function Index() {
             <FormNav steps={steps} />
             {currentStep?.name == "Nodes" ? (
               <CustomNodeForm
+                nodes={custom_nodes}
                 onNextStep={(e) => {
                   e.preventDefault();
                   updateSteps(steps, 1);
@@ -67,6 +79,7 @@ export default function Index() {
             ) : null}
             {currentStep?.name == "Models" ? (
               <ModelsForm
+                models={models}
                 onNextStep={(e) => {
                   e.preventDefault();
                   updateSteps(steps, 2);
