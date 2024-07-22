@@ -23,7 +23,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       resolve(true);
     }, 4000);
   });
-  console.log("value", value);
 
   return json({ ok: value }, { status: 200 });
 };
