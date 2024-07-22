@@ -1,6 +1,6 @@
 import { json, useLoaderData } from "@remix-run/react";
 
-import { FormStep, FormStepStatus } from "~/lib/types";
+import { CustomNode, FormStep, FormStepStatus, Model } from "~/lib/types";
 import FormNav from "~/components/form-nav";
 import CustomNodeForm from "~/components/custom-node-form";
 import type { ActionFunctionArgs } from "@remix-run/node";
@@ -41,6 +41,16 @@ export default function Index() {
   const [steps, setSteps] = useState<FormStep[]>(initialSteps);
   const currentStep = steps.find((step) => step.status == "current");
 
+  const [selectedCustomNodes, setSelectedCustomNodes] = useState<CustomNode[]>(
+    []
+  );
+  const [selectedComfyUIModels, setSelectedComfyUIModels] = useState<Model[]>(
+    []
+  );
+  const [selectedCivitaiModels, setSelectedCivitaiModels] = useState<Model[]>(
+    []
+  );
+
   function updateSteps(steps: FormStep[], currentPage: number) {
     const updatedSteps = steps.map((step, index) => {
       let status: FormStepStatus;
@@ -60,6 +70,18 @@ export default function Index() {
     });
     setSteps(updatedSteps);
   }
+
+  function updateSelectedCustomNodes(customNodes: CustomNode[]) {
+    setSelectedCustomNodes(customNodes);
+  }
+
+  function updateSelectedComfyUIModels(models: Model[]) {
+    setSelectedComfyUIModels(models);
+  }
+
+  function updateSelectedCivitaiModels(models: Model[]) {
+    setSelectedCivitaiModels(models);
+  }
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col">
       <div className="container mx-auto sm:px-6 lg:px-32 my-32">
@@ -69,7 +91,9 @@ export default function Index() {
             <FormNav steps={steps} />
             {currentStep?.name == "Nodes" ? (
               <CustomNodeForm
+                selectedCustomNodes={selectedCustomNodes}
                 nodes={custom_nodes}
+                onNodesSelected={updateSelectedCustomNodes}
                 onNextStep={(e) => {
                   e.preventDefault();
                   updateSteps(steps, 1);
@@ -79,6 +103,10 @@ export default function Index() {
             {currentStep?.name == "Models" ? (
               <ModelsForm
                 models={models}
+                selectedComfyUIModels={selectedComfyUIModels}
+                selectedCivitAIModels={selectedCivitaiModels}
+                onComfyUIModelsSelected={updateSelectedComfyUIModels}
+                onCivitAIModelsSelected={updateSelectedCivitaiModels}
                 onNextStep={(e) => {
                   e.preventDefault();
                   updateSteps(steps, 2);

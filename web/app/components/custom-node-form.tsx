@@ -27,10 +27,14 @@ import { InformationCircleIcon } from "@heroicons/react/24/outline";
 
 export interface CustomNodeFormProps {
   nodes: CustomNode[];
+  selectedCustomNodes: CustomNode[];
+  onNodesSelected: (node: CustomNode[]) => void;
   onNextStep: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 }
 export default function CustomNodeForm({
   nodes,
+  selectedCustomNodes,
+  onNodesSelected,
   onNextStep,
 }: CustomNodeFormProps) {
   return (
@@ -54,7 +58,11 @@ export default function CustomNodeForm({
           <div className="sm:col-span-4">
             <Label>Add Custom Nodes</Label>
             <div className="mt-2">
-              <CustomNodesComboBox nodes={nodes} />
+              <CustomNodesComboBox
+                nodes={nodes}
+                selectedNodes={selectedCustomNodes}
+                onNodesSelected={onNodesSelected}
+              />
             </div>
           </div>
         </div>
@@ -68,11 +76,16 @@ export default function CustomNodeForm({
 
 interface CustomNodesComboxBoxProps {
   nodes: CustomNode[];
+  selectedNodes: CustomNode[];
+  onNodesSelected: (nodes: CustomNode[]) => void;
 }
 
-function CustomNodesComboBox({ nodes }: CustomNodesComboxBoxProps) {
+function CustomNodesComboBox({
+  nodes,
+  selectedNodes,
+  onNodesSelected,
+}: CustomNodesComboxBoxProps) {
   const [open, setOpen] = useState(false);
-  const [selectedNodes, setSelectedNodes] = useState<CustomNode[]>([]);
 
   function onSelected(node: CustomNode) {
     const prevSelectedNodes = selectedNodes;
@@ -83,7 +96,7 @@ function CustomNodesComboBox({ nodes }: CustomNodesComboxBoxProps) {
           node.reference + node.title
       )
     ) {
-      setSelectedNodes(
+      onNodesSelected(
         prevSelectedNodes.filter(
           (selectedModel) =>
             selectedModel.reference + selectedModel.title !==
@@ -91,7 +104,7 @@ function CustomNodesComboBox({ nodes }: CustomNodesComboxBoxProps) {
         )
       );
     } else {
-      setSelectedNodes([...prevSelectedNodes, node]);
+      onNodesSelected([...prevSelectedNodes, node]);
     }
   }
   return (

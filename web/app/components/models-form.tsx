@@ -25,12 +25,20 @@ import { useFetcher } from "@remix-run/react";
 
 export interface ModelsFormProps {
   models: Model[];
+  selectedComfyUIModels: Model[];
+  selectedCivitAIModels: Model[];
+  onComfyUIModelsSelected: (model: Model[]) => void;
+  onCivitAIModelsSelected: (model: Model[]) => void;
   onNextStep: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
   onBackStep: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 }
 
 export default function ModelsForm({
   models,
+  selectedComfyUIModels,
+  selectedCivitAIModels,
+  onComfyUIModelsSelected,
+  onCivitAIModelsSelected,
   onNextStep,
   onBackStep,
 }: ModelsFormProps) {
@@ -47,13 +55,21 @@ export default function ModelsForm({
           <div className="sm:col-span-4">
             <Label>Add Models from ComfyUIManager</Label>
             <div className="mt-2">
-              <ModelComboBox models={models} />
+              <ModelComboBox
+                models={models}
+                selectedModels={selectedComfyUIModels}
+                onModelSelected={onComfyUIModelsSelected}
+              />
             </div>
           </div>
           <div className="sm:col-span-4">
             <Label>Add Models from Civitai</Label>
             <div className="mt-2">
-              <CivitAIModelComboBox default_models={search.data?.models} />
+              <CivitAIModelComboBox
+                default_models={search.data?.models}
+                selectedModels={selectedCivitAIModels}
+                onModelSelected={onCivitAIModelsSelected}
+              />
             </div>
           </div>
         </div>
@@ -68,11 +84,16 @@ export default function ModelsForm({
 
 interface ModelComboBoxProps {
   models: Model[];
+  selectedModels: Model[];
+  onModelSelected: (model: Model[]) => void;
 }
 
-function ModelComboBox({ models }: ModelComboBoxProps) {
+function ModelComboBox({
+  models,
+  selectedModels,
+  onModelSelected,
+}: ModelComboBoxProps) {
   const [open, setOpen] = useState(false);
-  const [selectedModels, setSelectedModels] = useState<Model[]>([]);
 
   function onSelected(node: Model) {
     const prevSelectedModels = selectedModels;
@@ -82,14 +103,14 @@ function ModelComboBox({ models }: ModelComboBoxProps) {
           selectedModel.url + selectedModel.name === node.url + node.name
       )
     ) {
-      setSelectedModels(
+      onModelSelected(
         prevSelectedModels.filter(
           (selectedModel) =>
             selectedModel.url + selectedModel.name !== node.url + node.name
         )
       );
     } else {
-      setSelectedModels([...prevSelectedModels, node]);
+      onModelSelected([...prevSelectedModels, node]);
     }
   }
   return (

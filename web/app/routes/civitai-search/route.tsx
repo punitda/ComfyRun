@@ -76,10 +76,14 @@ function mapModelsList(models: any): Model[] {
 
 interface CivitAIModelComboBoxProps {
   default_models?: Model[];
+  selectedModels: Model[];
+  onModelSelected: (model: Model[]) => void;
 }
 
 export function CivitAIModelComboBox({
   default_models,
+  selectedModels,
+  onModelSelected,
 }: CivitAIModelComboBoxProps) {
   const searchDetails = useFetcher<typeof loader>();
   const [query, setQuery] = useState<string>();
@@ -97,7 +101,6 @@ export function CivitAIModelComboBox({
   }, [debouncedQuery]);
 
   const [open, setOpen] = useState(false);
-  const [selectedModels, setSelectedModels] = useState<Model[]>([]);
 
   function onSelected(node: Model) {
     const prevSelectedModels = selectedModels;
@@ -107,14 +110,14 @@ export function CivitAIModelComboBox({
           selectedModel.url + selectedModel.name === node.url + node.name
       )
     ) {
-      setSelectedModels(
+      onModelSelected(
         prevSelectedModels.filter(
           (selectedModel) =>
             selectedModel.url + selectedModel.name !== node.url + node.name
         )
       );
     } else {
-      setSelectedModels([...prevSelectedModels, node]);
+      onModelSelected([...prevSelectedModels, node]);
     }
   }
   return (
