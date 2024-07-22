@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   Command,
@@ -18,8 +18,10 @@ import {
   PopoverTrigger,
 } from "~/components/ui/popover";
 
-import { cn } from "~/lib/utils";
 import { Model } from "~/lib/types";
+import { cn } from "~/lib/utils";
+import { CivitAIModelComboBox, loader } from "~/routes/civitai-search/route";
+import { useFetcher } from "@remix-run/react";
 
 export interface ModelsFormProps {
   models: Model[];
@@ -32,14 +34,26 @@ export default function ModelsForm({
   onNextStep,
   onBackStep,
 }: ModelsFormProps) {
+  const search = useFetcher<typeof loader>();
+  useEffect(() => {
+    search.load(`/civitai-search`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <div>
       <div className="px-4 py-6 sm:p-8">
         <div className="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
           <div className="sm:col-span-4">
-            <Label>Add Custom Nodes</Label>
+            <Label>Add Models from ComfyUIManager</Label>
             <div className="mt-2">
               <ModelComboBox models={models} />
+            </div>
+          </div>
+          <div className="sm:col-span-4">
+            <Label>Add Models from Civitai</Label>
+            <div className="mt-2">
+              <CivitAIModelComboBox default_models={search.data?.models} />
             </div>
           </div>
         </div>
