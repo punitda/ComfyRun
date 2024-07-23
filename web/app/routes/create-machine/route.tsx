@@ -18,14 +18,16 @@ const initialSteps: FormStep[] = [
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
-  const value = formData.get("create-machine-action");
+  for (const value of formData.values()) {
+    console.log(value);
+  }
   await new Promise((resolve) => {
     setTimeout(() => {
       resolve(true);
     }, 4000);
   });
 
-  return json({ ok: value }, { status: 200 });
+  return json({ ok: true }, { status: 200 });
 };
 
 export const loader = async () => {
@@ -122,15 +124,16 @@ export default function Index() {
             {currentStep?.name == "GPU" ? (
               <>
                 <GpuForm
+                  customNodesJson={convertCustomNodesJson(selectedCustomNodes)}
+                  modelsJson={convertModelsJson(
+                    selectedCivitaiModels.concat(selectedComfyUIModels)
+                  )}
                   onBackStep={(e) => {
                     e.preventDefault();
                     updateSteps(steps, 1);
                   }}
                 />
-                {console.log(
-                  "SelectedCustomNodes",
-                  convertCustomNodesJson(selectedCustomNodes)
-                )}
+                {console.log("SelectedCustomNodes")}
                 {console.log(
                   "SelectedModels",
                   convertModelsJson(
