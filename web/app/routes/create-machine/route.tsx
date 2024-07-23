@@ -7,7 +7,8 @@ import type { ActionFunctionArgs } from "@remix-run/node";
 import { useState } from "react";
 import ModelsForm from "~/components/models-form";
 import GpuForm from "~/components/gpu-form";
-import { getCustomNodes, getModels } from "../../server/github";
+import { getCustomNodes, getModels } from "~/server/github";
+import { convertCustomNodesJson, convertModelsJson } from "~/lib/utils";
 
 const initialSteps: FormStep[] = [
   { id: "01", name: "Nodes", href: "#", status: "current" },
@@ -82,6 +83,7 @@ export default function Index() {
   function updateSelectedCivitaiModels(models: Model[]) {
     setSelectedCivitaiModels(models);
   }
+
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col">
       <div className="container mx-auto sm:px-6 lg:px-32 my-32">
@@ -118,12 +120,24 @@ export default function Index() {
               />
             ) : null}
             {currentStep?.name == "GPU" ? (
-              <GpuForm
-                onBackStep={(e) => {
-                  e.preventDefault();
-                  updateSteps(steps, 1);
-                }}
-              />
+              <>
+                <GpuForm
+                  onBackStep={(e) => {
+                    e.preventDefault();
+                    updateSteps(steps, 1);
+                  }}
+                />
+                {console.log(
+                  "SelectedCustomNodes",
+                  convertCustomNodesJson(selectedCustomNodes)
+                )}
+                {console.log(
+                  "SelectedModels",
+                  convertModelsJson(
+                    selectedCivitaiModels.concat(selectedComfyUIModels)
+                  )
+                )}
+              </>
             ) : null}
           </div>
         </div>

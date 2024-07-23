@@ -1,6 +1,7 @@
 import { type ClassValue, clsx } from "clsx";
 import { useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
+import { CustomNode, Model, OutputCustomNodesJson, OutputModel } from "./types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -32,4 +33,41 @@ export function useDebounce<T = unknown>(
     [value, delay] // Only re-call effect if value or delay changes
   );
   return [debouncedValue, isDebouncing];
+}
+
+export function convertCustomNodesJson(nodes: CustomNode[]) {
+  const output: OutputCustomNodesJson = {
+    custom_nodes: {},
+    unknown_nodes: [],
+  };
+
+  nodes.forEach((node) => {
+    output.custom_nodes[node.reference] = {
+      state: "not-installed",
+      hash: "-",
+    };
+  });
+
+  return output;
+}
+
+export function convertModelsJson(input: Model[]): OutputModel[] {
+  return input.map((item) => {
+    const nameWithoutExtension = item.filename.split(".")[0];
+
+    let path: string;
+    if (!item.type || item.type === "default") {
+      path = "checkpoints";
+    } else if (item.type === "IP-Adapter") {
+      path = "ipadapter";
+    } else {
+      path = item.type;
+    }
+
+    return {
+      name: nameWithoutExtension,
+      url: item.url,
+      path: path,
+    };
+  });
 }

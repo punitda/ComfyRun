@@ -16,7 +16,7 @@ export interface CustomNode {
 
 export interface Model {
   name: string;
-  type: string;
+  type?: string;
   save_path: string;
   reference: string;
   url: string;
@@ -33,4 +33,16 @@ export enum GPU {
   A10G = "A10G",
   A100 = "A100",
   H100 = "H100",
+}
+
+export interface OutputNode {
+  state: string;
+  hash: string;
+}
+
+export interface OutputCustomNodesJson {
+  custom_nodes: {
+    [key: string]: OutputNode;
+  };
+  unknown_nodes: string[];
 }
