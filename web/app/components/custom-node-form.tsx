@@ -171,8 +171,7 @@ function UploadWorkflowFileForm() {
     }
   }
   return (
-    <fetcher.Form action="/create-machine" method="post">
-      <input type="hidden" name="create-machine-action" value="WORKFLOW_FILE" />
+    <fetcher.Form action="/upload-workflow-file" method="post">
       <div className="flex items-center space-x-2">
         <Label htmlFor="workflow-file">Upload workflow file</Label>
         <Popover>
