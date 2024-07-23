@@ -75,7 +75,9 @@ export default function ModelsForm({
         </div>
       </div>
       <div className="flex items-center justify-end gap-x-6 border-t border-gray-900/10 px-4 py-4 sm:px-8">
-        <Button onClick={onBackStep}>Back</Button>
+        <Button variant="outline" onClick={onBackStep}>
+          Back
+        </Button>
         <Button onClick={onNextStep}>Next</Button>
       </div>
     </div>

@@ -69,7 +69,11 @@ export default function GpuForm({
         </div>
       </div>
       <div className="flex items-center justify-end gap-x-6 border-t border-gray-900/10 px-4 py-4 sm:px-8">
-        <Button onClick={onBackStep} disabled={isCreatingMachine}>
+        <Button
+          variant="outline"
+          onClick={onBackStep}
+          disabled={isCreatingMachine}
+        >
           Back
         </Button>
         <Button type="submit" disabled={isCreatingMachine}>
