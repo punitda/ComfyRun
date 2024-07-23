@@ -27,7 +27,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const searchUrl = getUrl(query);
 
   const res = await fetch(searchUrl);
-  if (!res.ok) throw new Error("Search error");
+  const emptyModels: Model[] = [];
+  if (!res.ok) return json({ emptyModels }, { status: 200 }); //throw new Error("Search error");
 
   const searchResults = await res.json();
 
