@@ -16,7 +16,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CustomNode } from "~/lib/types";
 
 import { Check, ChevronsUpDown } from "lucide-react";
@@ -24,6 +24,7 @@ import { cn } from "~/lib/utils";
 import { useFetcher } from "@remix-run/react";
 
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
+import { action } from "~/routes/upload-workflow-file/route";
 
 export interface CustomNodeFormProps {
   nodes: CustomNode[];
@@ -42,7 +43,7 @@ export default function CustomNodeForm({
       <div className="px-4 py-6 sm:p-8">
         <div className="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
           <div className="sm:col-span-4">
-            <UploadWorkflowFileForm />
+            <UploadWorkflowFileForm onNodesSelected={onNodesSelected} />
           </div>
           <div className="relative sm:col-span-4">
             <div
@@ -158,8 +159,15 @@ function CustomNodesComboBox({
   );
 }
 
-function UploadWorkflowFileForm() {
-  const fetcher = useFetcher();
+interface UploadWorkflowFileFormProps {
+  onNodesSelected: (nodes: CustomNode[]) => void;
+}
+
+function UploadWorkflowFileForm({
+  onNodesSelected,
+}: UploadWorkflowFileFormProps) {
+  const fetcher = useFetcher<typeof action>();
+
   const isUploading = fetcher.state !== "idle";
   const [fileAdded, setFileAdded] = useState(false);
 
@@ -170,8 +178,19 @@ function UploadWorkflowFileForm() {
       setFileAdded(true);
     }
   }
+
+  useEffect(() => {
+    if (fetcher.data?.nodes?.length ?? 0 > 0) {
+      onNodesSelected(fetcher.data?.nodes ?? []);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetcher.data?.nodes]);
   return (
-    <fetcher.Form action="/upload-workflow-file" method="post">
+    <fetcher.Form
+      action="/upload-workflow-file"
+      method="post"
+      encType="multipart/form-data"
+    >
       <div className="flex items-center space-x-2">
         <Label htmlFor="workflow-file">Upload workflow file</Label>
         <Popover>
@@ -228,6 +247,12 @@ function UploadWorkflowFileForm() {
           ) : null}
         </div>
       </div>
+      {fetcher?.data?.nodes ? (
+        <p className="text-sm mt-2">
+          <span className="font-semibold">{fetcher?.data?.nodes.length}</span>
+          <span> nodes selected from the workflow file</span>
+        </p>
+      ) : null}
     </fetcher.Form>
   );
 }
