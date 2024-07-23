@@ -25,7 +25,7 @@ export default function GpuForm({ onBackStep }: GpuFormProps) {
           <div className="sm:col-span-4">
             <Label htmlFor="machine-name">Machine Name</Label>
             <div className="mt-2">
-              <Input type="text" id="machine-name" />
+              <Input type="text" id="machine-name" placeholder="Machine name" />
             </div>
           </div>
           <div className="sm:col-span-4">
