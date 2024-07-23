@@ -133,13 +133,6 @@ export default function Index() {
                     updateSteps(steps, 1);
                   }}
                 />
-                {console.log("SelectedCustomNodes")}
-                {console.log(
-                  "SelectedModels",
-                  convertModelsJson(
-                    selectedCivitaiModels.concat(selectedComfyUIModels)
-                  )
-                )}
               </>
             ) : null}
           </div>
