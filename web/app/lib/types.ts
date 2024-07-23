@@ -46,3 +46,9 @@ export interface OutputCustomNodesJson {
   };
   unknown_nodes: string[];
 }
+
+export interface OutputModel {
+  name: string;
+  url: string;
+  path: string;
+}
