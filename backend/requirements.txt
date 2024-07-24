@@ -1,0 +1,5 @@
+modal==0.62.204
+fastapi==0.111.0
+pydantic==2.7.3
+uvicorn[standard]==0.25.0
+requests
