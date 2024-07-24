@@ -38,7 +38,7 @@ export default function GpuForm({
               <Input
                 type="text"
                 id="machine-name"
-                name="machine-name"
+                name="machine_name"
                 placeholder="Machine name"
                 required
               />
@@ -56,7 +56,7 @@ export default function GpuForm({
               value={JSON.stringify(customNodesJson)}
               hidden
               id="custom-nodes"
-              name="custom-nodes"
+              name="custom_nodes"
             />
             <Textarea
               placeholder="Type your message here."

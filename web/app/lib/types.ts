@@ -27,7 +27,7 @@ export interface Model {
 }
 
 export enum GPU {
-  Any = "any",
+  Any = "Any",
   L4 = "L4",
   T4 = "T4",
   A10G = "A10G",
@@ -51,4 +51,12 @@ export interface OutputModel {
   name: string;
   url: string;
   path: string;
+}
+
+
+export interface CreateMachineRequestBody {
+  machine_name: string;
+  gpu: string;
+  custom_nodes: OutputCustomNodesJson,
+  models: OutputModel[]
 }
