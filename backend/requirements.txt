@@ -3,3 +3,5 @@ fastapi==0.111.0
 pydantic==2.7.3
 uvicorn[standard]==0.25.0
 requests
+python-slugify==8.0.4
+python-dotenv==1.0.1
