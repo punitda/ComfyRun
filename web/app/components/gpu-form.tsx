@@ -47,7 +47,7 @@ export default function GpuForm({
           <div className="sm:col-span-4">
             <Label>Select GPU</Label>
             <div className="mt-2">
-              <GpuSelect gpus={Object.keys(GPU)} />
+              <GpuSelect />
             </div>
           </div>
           <div className="sm:col-span-4 hidden">
@@ -84,11 +84,7 @@ export default function GpuForm({
   );
 }
 
-interface GpuComboBoxProps {
-  gpus: string[];
-}
-
-function GpuSelect({ gpus }: GpuComboBoxProps) {
+function GpuSelect() {
   return (
     <Select required name="gpu">
       <SelectTrigger className="w-[200px]">
@@ -97,9 +93,9 @@ function GpuSelect({ gpus }: GpuComboBoxProps) {
       <SelectContent>
         <SelectGroup>
           <SelectLabel>GPUs</SelectLabel>
-          {gpus.map((gpu) => (
-            <SelectItem value={gpu} key={gpu}>
-              {gpu}
+          {Object.entries(GPU).map(([key, value]) => (
+            <SelectItem value={value} key={value}>
+              {key}
             </SelectItem>
           ))}
         </SelectGroup>
