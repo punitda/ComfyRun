@@ -1,6 +1,6 @@
 import { json, useLoaderData } from "@remix-run/react";
 
-import { CustomNode, FormStep, FormStepStatus, Model } from "~/lib/types";
+import { CreateMachineRequestBody, CustomNode, FormStep, FormStepStatus, Model, OutputCustomNodesJson, OutputModel } from "~/lib/types";
 import FormNav from "~/components/form-nav";
 import CustomNodeForm from "~/components/custom-node-form";
 import type { ActionFunctionArgs } from "@remix-run/node";
@@ -18,16 +18,35 @@ const initialSteps: FormStep[] = [
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
-  for (const value of formData.values()) {
-    console.log(value);
-  }
-  await new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(true);
-    }, 4000);
-  });
 
-  return json({ ok: true }, { status: 200 });
+  const custom_nodes = JSON.parse(formData.get("custom_nodes") as string) as OutputCustomNodesJson
+  const models = JSON.parse(formData.get("models") as string) as OutputModel[]
+  const machine_name =  formData.get("machine_name") as string;
+  const gpu = formData.get("gpu") as string;
+
+
+  const requestBody: CreateMachineRequestBody = {
+    machine_name,
+    gpu,
+    custom_nodes,
+    models
+  }
+  // TODO: Replace with base url from .env
+  const url = `${process.env.MACHINE_BUILDER_API_BASE_URL}/create-machine`
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(requestBody)
+  })
+
+  if(!response.ok) {
+    throw new Error("Unable to create machine")
+  }
+
+  const data = await response.json();
+  return json({ data }, { status: 200 });
 };
 
 export const loader = async () => {

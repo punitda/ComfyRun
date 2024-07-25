@@ -1,0 +1,16 @@
+version: '3'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./src:/app/src
+      - ./.env:/app/.env
+      - ./watch-and-run.sh:/app/watch-and-run.sh
+    container_name: comfyui-deploy-app 
+    ports:
+      - "80:80"
+    environment:
+      - WATCHFILES_FORCE_POLLING=true
+    command: sh /app/watch-and-run.sh

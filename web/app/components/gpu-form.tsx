@@ -38,7 +38,7 @@ export default function GpuForm({
               <Input
                 type="text"
                 id="machine-name"
-                name="machine-name"
+                name="machine_name"
                 placeholder="Machine name"
                 required
               />
@@ -47,7 +47,7 @@ export default function GpuForm({
           <div className="sm:col-span-4">
             <Label>Select GPU</Label>
             <div className="mt-2">
-              <GpuSelect gpus={Object.keys(GPU)} />
+              <GpuSelect />
             </div>
           </div>
           <div className="sm:col-span-4 hidden">
@@ -56,7 +56,7 @@ export default function GpuForm({
               value={JSON.stringify(customNodesJson)}
               hidden
               id="custom-nodes"
-              name="custom-nodes"
+              name="custom_nodes"
             />
             <Textarea
               placeholder="Type your message here."
@@ -84,11 +84,7 @@ export default function GpuForm({
   );
 }
 
-interface GpuComboBoxProps {
-  gpus: string[];
-}
-
-function GpuSelect({ gpus }: GpuComboBoxProps) {
+function GpuSelect() {
   return (
     <Select required name="gpu">
       <SelectTrigger className="w-[200px]">
@@ -97,9 +93,9 @@ function GpuSelect({ gpus }: GpuComboBoxProps) {
       <SelectContent>
         <SelectGroup>
           <SelectLabel>GPUs</SelectLabel>
-          {gpus.map((gpu) => (
-            <SelectItem value={gpu} key={gpu}>
-              {gpu}
+          {Object.entries(GPU).map(([key, value]) => (
+            <SelectItem value={value} key={value}>
+              {key}
             </SelectItem>
           ))}
         </SelectGroup>
