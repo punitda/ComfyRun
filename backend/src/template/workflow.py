@@ -2,24 +2,29 @@ import subprocess
 import shutil
 import json
 import os
+from config import config
 
 from modal import (App, gpu, Image, web_server, build, enter, Secret)
-from src.template.helpers import (models_volume, MODELS_PATH, MOUNT_PATH,
-                                  download_models, move_clip_vision_files,  unzip_insight_face_models)
+from helpers import (models_volume, MODELS_PATH, MOUNT_PATH,
+                     download_models, move_clip_vision_files,  unzip_insight_face_models)
+
 
 current_directory = os.path.dirname(os.path.realpath(__file__))
 
 comfyui_image = (Image.debian_slim(python_version="3.10")
                  .apt_install("git")
-                 .pip_install("git+https://github.com/modal-labs/asgiproxy.git", "comfy-cli", "insightface==0.7.3", "onnxruntime==1.17.3", "onnxruntime-gpu==1.17.0")
+                 .pip_install("git+https://github.com/modal-labs/asgiproxy.git", "comfy-cli")
                  .run_commands("comfy --skip-prompt install --nvidia")
                  .copy_local_file(f"{current_directory}/custom_nodes.json", "/root/")
                  .run_commands("comfy --skip-prompt node install-deps --deps=/root/custom_nodes.json")
                  .copy_local_file(f"{current_directory}/models.json", "/root/")
                  )
 
+machine_name = config["machine_name"]
+
+
 app = App(
-    "instantid-workflow",
+    machine_name,
     image=comfyui_image,
     volumes={
         MOUNT_PATH: models_volume
@@ -38,7 +43,7 @@ app = App(
     # to be on a single container.
     concurrency_limit=1,
 )
-class InstantIdDeploy:
+class ComfyWorkflow:
     @build()
     def download(self):
         with open("/root/models.json", 'r', encoding='utf-8') as file:
