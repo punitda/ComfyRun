@@ -33,12 +33,13 @@ class Model(BaseModel):
 
 
 class Gpu(str, Enum):
-    ANY = "Any"
-    T4 = "T4"
-    L4 = "L4"
-    A10G = "A10G"
-    A100 = "A100"
-    H100 = "H100"
+    ANY = "any"
+    T4 = "t4"
+    L4 = "l4"
+    A10G = "a10g"
+    A100SMALL = "a100-40gb"
+    A100BIG = "a100-80gb"
+    H100 = "h100"
 
 
 class CreateMachinePayload(BaseModel):
@@ -66,7 +67,7 @@ async def deploy_machine(payload: CreateMachinePayload):
 
     config = {
         "machine_name": slugify(payload.machine_name),
-        "gpu": payload.gpu
+        "gpu": payload.gpu.value
     }
 
     os.makedirs(os.path.dirname(f"{folder_path}/config.py"), exist_ok=True)

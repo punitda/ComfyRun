@@ -27,12 +27,13 @@ export interface Model {
 }
 
 export enum GPU {
-  Any = "Any",
-  L4 = "L4",
-  T4 = "T4",
-  A10G = "A10G",
-  A100 = "A100",
-  H100 = "H100",
+  ANY = "any",
+  T4 = "t4",
+  L4 = "l4",
+  A10G = "a10g",
+  A100SMALL = "a100-40gb",
+  A100BIG = "a100-80gb",
+  H100 = "h100",
 }
 
 export interface OutputNode {
