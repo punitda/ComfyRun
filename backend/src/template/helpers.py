@@ -34,13 +34,15 @@ def download_models(models, civitai_token) -> bool:
     for model in models:
         model_name = model["name"]
         download_url = model["url"]
-        download_path = model["download_path"]
+        download_path = model["path"]
         file_name = download_url.split("/")[-1]
         if CIVITAI_BASE_URL in download_url or file_name in common_model_names:
-            checkpoint_path: Path = Path(download_path) / model_name
+            checkpoint_path: Path = Path(
+                f"/mnt/models/{download_path}") / model_name
             relative_path: Path = checkpoint_path
         else:
-            checkpoint_path: Path = Path(download_path) / file_name
+            checkpoint_path: Path = Path(
+                f"/mnt/models/{download_path}") / file_name
             relative_path = Path(download_path)
         print(f"checkpoint_path: {checkpoint_path}")
         print(f"checkpoint_path exists : {checkpoint_path.exists()}")
