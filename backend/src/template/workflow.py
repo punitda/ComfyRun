@@ -21,6 +21,7 @@ comfyui_image = (Image.debian_slim(python_version="3.10")
                  )
 
 machine_name = config["machine_name"]
+gpu_config = config["gpu"]
 
 
 app = App(
@@ -34,7 +35,7 @@ app = App(
 
 
 @app.cls(
-    gpu=gpu.A10G(),
+    gpu=gpu_config,
     image=comfyui_image,
     timeout=300,
     container_idle_timeout=300,

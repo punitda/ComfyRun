@@ -27,7 +27,7 @@ export interface Model {
 }
 
 export enum GPU {
-  ANY = "any",
+  Any = "any",
   T4 = "t4",
   L4 = "l4",
   A10G = "a10g",
