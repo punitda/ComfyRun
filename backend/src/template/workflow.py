@@ -36,8 +36,8 @@ app = App(
 @app.cls(
     gpu=gpu.A10G(),
     image=comfyui_image,
-    timeout=600,
-    container_idle_timeout=600,
+    timeout=300,
+    container_idle_timeout=300,
     allow_concurrent_inputs=100,
     # Restrict to 1 container because we want to our ComfyUI session state
     # to be on a single container.
