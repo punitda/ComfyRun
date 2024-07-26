@@ -1,4 +1,4 @@
-ext_node_map = {
+local_node_map = {
     "https://gist.github.com/alkemann/7361b8eb966f29c8238fd323409efb68/raw/f9605be0b38d38d3e3a2988f89248ff557010076/alkemann.py": [
         [
             "Int to Text",

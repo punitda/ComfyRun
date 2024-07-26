@@ -4,19 +4,31 @@ import os
 import json
 import re
 
+from contextlib import asynccontextmanager
 from typing import Dict, List, Literal, Annotated
 from pydantic import BaseModel, HttpUrl
 
 from fastapi import FastAPI, File
 from fastapi.encoders import jsonable_encoder
+import httpx
 
 from dotenv import load_dotenv
 from slugify import slugify
-
-from src.node_map import ext_node_map
+from src.node_map import local_node_map
 
 load_dotenv()
-app = FastAPI()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    global ext_node_map
+    ext_node_map = await fetch_node_map()
+    yield
+    ext_node_map.clear()
+
+app = FastAPI(lifespan=lifespan)
+
+ext_node_map: Dict = {}
 
 
 class CustomNode(BaseModel):
@@ -66,8 +78,8 @@ async def create_machine(payload: CreateMachinePayload):
 @app.post("/generate-custom-nodes")
 async def generate_custom_nodes(workflow_file: Annotated[bytes, File()]):
     workflow = json.loads(workflow_file.decode("utf-8"))
-    used_exts, _ = await extract_nodes_from_workflow(workflow)
-    return used_exts
+    custom_nodes, _ = await extract_nodes_from_workflow(workflow)
+    return custom_nodes
 
 
 async def deploy_machine(payload: CreateMachinePayload):
@@ -190,3 +202,13 @@ async def extract_nodes_from_workflow(workflow):
             unknown_nodes.add(node_name)
 
     return used_exts, unknown_nodes
+
+
+async def fetch_node_map():
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.get("https://raw.githubusercontent.com/ltdrdata/ComfyUI-Manager/main/extension-node-map.json")
+            response.raise_for_status()
+            return response.json()
+        except httpx.HTTPError:
+            return local_node_map
