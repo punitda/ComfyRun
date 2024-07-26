@@ -78,7 +78,15 @@ export default function ModelsForm({
         <Button variant="outline" onClick={onBackStep}>
           Back
         </Button>
-        <Button onClick={onNextStep}>Next</Button>
+        <Button
+          onClick={onNextStep}
+          disabled={
+            selectedCivitAIModels.length === 0 &&
+            selectedComfyUIModels.length === 0
+          }
+        >
+          Next
+        </Button>
       </div>
     </div>
   );
