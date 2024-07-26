@@ -16,11 +16,22 @@ from dotenv import load_dotenv
 from slugify import slugify
 from src.node_map import local_node_map
 
+import logging
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+)
+logger = logging.getLogger(__name__)
+
+
 load_dotenv()
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # pylint: disable-next=global-statement
     global ext_node_map
     ext_node_map = await fetch_node_map()
     yield
@@ -195,7 +206,7 @@ async def extract_nodes_from_workflow(workflow):
             pass
         elif ext is not None:
             if 'Fooocus' in ext:
-                print(f">> {node_name}")
+                logger.info(">> %s", node_name)
 
             used_exts.add(ext)
         else:
@@ -211,4 +222,5 @@ async def fetch_node_map():
             response.raise_for_status()
             return response.json()
         except httpx.HTTPError:
+            logger.error("Unable to fetch node map json from ComfyUIManager")
             return local_node_map
