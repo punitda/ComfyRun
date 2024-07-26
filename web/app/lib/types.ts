@@ -9,8 +9,8 @@ export type FormStep = {
 };
 
 export interface CustomNode {
-  author: string;
-  title: string;
+  author?: string;
+  title?: string;
   reference: string;
 }
 
