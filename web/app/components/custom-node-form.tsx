@@ -26,6 +26,8 @@ import { useFetcher } from "@remix-run/react";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import { action } from "~/routes/upload-workflow-file/route";
 
+const UPLOAD_WF_FETCHER_KEY = "upload-workflow-file";
+
 export interface CustomNodeFormProps {
   nodes: CustomNode[];
   selectedCustomNodes: CustomNode[];
@@ -40,6 +42,9 @@ export default function CustomNodeForm({
   onNodesGeneratedFromWFFile,
   onNextStep,
 }: CustomNodeFormProps) {
+  const uploadWFFetcher = useFetcher<typeof action>({
+    key: UPLOAD_WF_FETCHER_KEY,
+  });
   return (
     <div>
       <div className="px-4 py-6 sm:p-8">
@@ -73,7 +78,14 @@ export default function CustomNodeForm({
         </div>
       </div>
       <div className="flex items-center justify-end gap-x-6 border-t border-gray-900/10 px-4 py-4 sm:px-8">
-        <Button onClick={onNextStep}>Next</Button>
+        <Button
+          onClick={onNextStep}
+          disabled={
+            !uploadWFFetcher?.data?.nodes && selectedCustomNodes.length === 0
+          }
+        >
+          Next
+        </Button>
       </div>
     </div>
   );
@@ -170,7 +182,7 @@ interface UploadWorkflowFileFormProps {
 function UploadWorkflowFileForm({
   onNodesGeneratedFromWFFile,
 }: UploadWorkflowFileFormProps) {
-  const fetcher = useFetcher<typeof action>();
+  const fetcher = useFetcher<typeof action>({ key: UPLOAD_WF_FETCHER_KEY });
 
   const isUploading = fetcher.state !== "idle";
   const [fileAdded, setFileAdded] = useState(false);
