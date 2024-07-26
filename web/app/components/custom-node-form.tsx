@@ -30,12 +30,14 @@ export interface CustomNodeFormProps {
   nodes: CustomNode[];
   selectedCustomNodes: CustomNode[];
   onNodesSelected: (node: CustomNode[]) => void;
+  onNodesGeneratedFromWFFile: (node: CustomNode[]) => void;
   onNextStep: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 }
 export default function CustomNodeForm({
   nodes,
   selectedCustomNodes,
   onNodesSelected,
+  onNodesGeneratedFromWFFile,
   onNextStep,
 }: CustomNodeFormProps) {
   return (
@@ -43,7 +45,9 @@ export default function CustomNodeForm({
       <div className="px-4 py-6 sm:p-8">
         <div className="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
           <div className="sm:col-span-4">
-            <UploadWorkflowFileForm onNodesSelected={onNodesSelected} />
+            <UploadWorkflowFileForm
+              onNodesGeneratedFromWFFile={onNodesGeneratedFromWFFile}
+            />
           </div>
           <div className="relative sm:col-span-4">
             <div
@@ -53,7 +57,7 @@ export default function CustomNodeForm({
               <div className="w-full border-t border-gray-300" />
             </div>
             <div className="relative flex justify-center">
-              <span className="bg-white px-2 text-sm text-primary">OR</span>
+              <span className="bg-white px-2 text-sm text-primary">PLUS</span>
             </div>
           </div>
           <div className="sm:col-span-4">
@@ -160,11 +164,11 @@ function CustomNodesComboBox({
 }
 
 interface UploadWorkflowFileFormProps {
-  onNodesSelected: (nodes: CustomNode[]) => void;
+  onNodesGeneratedFromWFFile: (nodes: CustomNode[]) => void;
 }
 
 function UploadWorkflowFileForm({
-  onNodesSelected,
+  onNodesGeneratedFromWFFile,
 }: UploadWorkflowFileFormProps) {
   const fetcher = useFetcher<typeof action>();
 
@@ -181,7 +185,7 @@ function UploadWorkflowFileForm({
 
   useEffect(() => {
     if (fetcher.data?.nodes?.length ?? 0 > 0) {
-      onNodesSelected(fetcher.data?.nodes ?? []);
+      onNodesGeneratedFromWFFile(fetcher.data?.nodes ?? []);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetcher.data?.nodes]);
@@ -210,7 +214,7 @@ function UploadWorkflowFileForm({
       <div className="flex w-full max-w-sm items-center space-x-2 mt-2">
         <Input
           id="workflow-file"
-          name="workflow-file"
+          name="workflow_file"
           accept=".json"
           type="file"
           onChange={onChange}
@@ -247,7 +251,7 @@ function UploadWorkflowFileForm({
           ) : null}
         </div>
       </div>
-      {fetcher?.data?.nodes ? (
+      {fetcher.state == "idle" && fetcher?.data?.nodes ? (
         <p className="text-sm mt-2">
           <span className="font-semibold">{fetcher?.data?.nodes.length}</span>
           <span> nodes selected from the workflow file</span>

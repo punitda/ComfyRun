@@ -1,6 +1,14 @@
 import { json, useLoaderData } from "@remix-run/react";
 
-import { CreateMachineRequestBody, CustomNode, FormStep, FormStepStatus, Model, OutputCustomNodesJson, OutputModel } from "~/lib/types";
+import {
+  CreateMachineRequestBody,
+  CustomNode,
+  FormStep,
+  FormStepStatus,
+  Model,
+  OutputCustomNodesJson,
+  OutputModel,
+} from "~/lib/types";
 import FormNav from "~/components/form-nav";
 import CustomNodeForm from "~/components/custom-node-form";
 import type { ActionFunctionArgs } from "@remix-run/node";
@@ -19,30 +27,31 @@ const initialSteps: FormStep[] = [
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
 
-  const custom_nodes = JSON.parse(formData.get("custom_nodes") as string) as OutputCustomNodesJson
-  const models = JSON.parse(formData.get("models") as string) as OutputModel[]
-  const machine_name =  formData.get("machine_name") as string;
+  const custom_nodes = JSON.parse(
+    formData.get("custom_nodes") as string
+  ) as OutputCustomNodesJson;
+  const models = JSON.parse(formData.get("models") as string) as OutputModel[];
+  const machine_name = formData.get("machine_name") as string;
   const gpu = formData.get("gpu") as string;
-
 
   const requestBody: CreateMachineRequestBody = {
     machine_name,
     gpu,
     custom_nodes,
-    models
-  }
-  // TODO: Replace with base url from .env
-  const url = `${process.env.MACHINE_BUILDER_API_BASE_URL}/create-machine`
+    models,
+  };
+
+  const url = `${process.env.MACHINE_BUILDER_API_BASE_URL}/create-machine`;
   const response = await fetch(url, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
     },
-    body: JSON.stringify(requestBody)
-  })
+    body: JSON.stringify(requestBody),
+  });
 
-  if(!response.ok) {
-    throw new Error("Unable to create machine")
+  if (!response.ok) {
+    throw new Error("Unable to create machine");
   }
 
   const data = await response.json();
@@ -66,6 +75,8 @@ export default function Index() {
   const [selectedCustomNodes, setSelectedCustomNodes] = useState<CustomNode[]>(
     []
   );
+  const [selectedCustomNodesFromWFFile, setSelectedCustomNodesFromWFFile] =
+    useState<CustomNode[]>([]);
   const [selectedComfyUIModels, setSelectedComfyUIModels] = useState<Model[]>(
     []
   );
@@ -97,6 +108,10 @@ export default function Index() {
     setSelectedCustomNodes(customNodes);
   }
 
+  function updateSelectedCustomNodesFromWFFile(custom_nodes: CustomNode[]) {
+    setSelectedCustomNodesFromWFFile(custom_nodes);
+  }
+
   function updateSelectedComfyUIModels(models: Model[]) {
     setSelectedComfyUIModels(models);
   }
@@ -117,6 +132,7 @@ export default function Index() {
                 selectedCustomNodes={selectedCustomNodes}
                 nodes={custom_nodes}
                 onNodesSelected={updateSelectedCustomNodes}
+                onNodesGeneratedFromWFFile={updateSelectedCustomNodesFromWFFile}
                 onNextStep={(e) => {
                   e.preventDefault();
                   updateSteps(steps, 1);
@@ -143,7 +159,9 @@ export default function Index() {
             {currentStep?.name == "GPU" ? (
               <>
                 <GpuForm
-                  customNodesJson={convertCustomNodesJson(selectedCustomNodes)}
+                  customNodesJson={convertCustomNodesJson(
+                    selectedCustomNodes.concat(selectedCustomNodesFromWFFile)
+                  )}
                   modelsJson={convertModelsJson(
                     selectedCivitaiModels.concat(selectedComfyUIModels)
                   )}
