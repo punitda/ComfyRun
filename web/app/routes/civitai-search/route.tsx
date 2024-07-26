@@ -28,7 +28,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const res = await fetch(searchUrl);
   const emptyModels: Model[] = [];
-  if (!res.ok) return json({ emptyModels }, { status: 200 }); //throw new Error("Search error");
+  if (!res.ok) return json({ models: emptyModels }, { status: 200 }); //throw new Error("Search error");
 
   const searchResults = await res.json();
 
@@ -92,7 +92,7 @@ export function CivitAIModelComboBox({
   const [debouncedQuery] = useDebounce(query, 300);
 
   const models =
-    query?.length == 0 ? default_models : searchDetails?.data?.models;
+    query?.length ?? 0 > 0 ? searchDetails?.data?.models : default_models;
 
   useEffect(() => {
     if (debouncedQuery) {
@@ -136,7 +136,7 @@ export function CivitAIModelComboBox({
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[400px]">
+      <PopoverContent className="w-[500px]">
         <Command shouldFilter={false}>
           <div className="relative inline-block">
             <CommandInput
@@ -153,7 +153,9 @@ export function CivitAIModelComboBox({
             ) : null}
           </div>
 
-          <CommandEmpty>No models found.</CommandEmpty>
+          {(query?.length ?? 0 > 0) && searchDetails.state === "idle" ? (
+            <CommandEmpty>No models found.</CommandEmpty>
+          ) : null}
           <CommandList>
             <CommandGroup>
               {models?.map((model) => (
