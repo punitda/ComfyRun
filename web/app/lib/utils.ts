@@ -41,7 +41,7 @@ export function convertCustomNodesJson(nodes: CustomNode[]) {
     unknown_nodes: [],
   };
 
-  nodes.forEach((node) => {
+  new Set(nodes).forEach((node) => {
     output.custom_nodes[node.reference] = {
       state: "not-installed",
       hash: "-",
