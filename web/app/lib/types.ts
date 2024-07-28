@@ -70,4 +70,5 @@ export interface CreateMachineResponseBody {
 export interface LogEntry {
   message: string;
   timestamp: number;
+  type: 'stdout' | 'stderr'
 }
