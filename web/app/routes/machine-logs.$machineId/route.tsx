@@ -43,12 +43,16 @@ export default function MachineLogs() {
         }
       };
 
-      eventSource.onmessage = (event) => {
+      const handleEvent = (event: MessageEvent) => {
         pendingLogs.current.push({
           timestamp: Date.now(),
           message: event.data,
+          type: event.type as "stdout" | "stderr",
         });
       };
+
+      eventSource.addEventListener("stdout", handleEvent);
+      eventSource.addEventListener("stderr", handleEvent);
 
       eventSource.onerror = (event) => {
         console.error("Event error", event);
@@ -86,11 +90,17 @@ export default function MachineLogs() {
     ({ index, style }: { index: number; style: CSSProperties }) => {
       const log = logs[index];
       return (
-        <div style={style} className="px-4 py-2">
+        <div style={style} className="px-4 py-1">
           <span className="text-gray-500 mr-2">{`[${new Date(
             log.timestamp
           ).toLocaleTimeString()}]`}</span>
-          <span className="text-purple-400">{log.message}</span>
+          <span
+            className={
+              log.type === "stderr" ? "text-red-500" : "text-purple-400"
+            }
+          >
+            {log.message}
+          </span>
         </div>
       );
     },
