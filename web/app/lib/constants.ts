@@ -1,0 +1,1 @@
+export const CREATE_MACHINE_FETCHER_KEY = "create-machine" 
