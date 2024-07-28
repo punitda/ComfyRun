@@ -33,7 +33,10 @@ export default function MachineLogs() {
     let eventSource: EventSource | null = null;
     let updateInterval: NodeJS.Timeout;
     if (machineId) {
-      const streamUrl = `http://0.0.0.0:80/machine-logs/${machineId}`;
+      const streamUrl = `${
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (window as any).ENV.MACHINE_BUILDER_API_BASE_URL
+      }/machine-logs/${machineId}`;
       eventSource = new EventSource(streamUrl);
 
       const flushPendingLogs = () => {
