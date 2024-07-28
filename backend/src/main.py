@@ -3,20 +3,23 @@ import asyncio
 import os
 import json
 import re
+import uuid
 
+import logging
 from contextlib import asynccontextmanager
 from typing import Dict, List, Literal, Annotated
 from pydantic import BaseModel, HttpUrl
 
 from fastapi import FastAPI, File
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.encoders import jsonable_encoder
+from fastapi.responses import StreamingResponse
 import httpx
 
 from dotenv import load_dotenv
 from slugify import slugify
 from src.node_map import local_node_map
 
-import logging
 
 # Configure logging
 logging.basicConfig(
@@ -39,7 +42,19 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+origins = [
+    "http://localhost:5173"
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 ext_node_map: Dict = {}
+tasks = {}
 
 
 class CustomNode(BaseModel):
@@ -77,13 +92,29 @@ class CreateMachinePayload(BaseModel):
 
 @app.post("/create-machine")
 async def create_machine(payload: CreateMachinePayload):
-    asyncio.create_task(deploy_machine(payload))
-    return {
-        "machine_name": payload.machine_name,
-        "gpu": payload.gpu.value,
-        "custom_nodes": payload.custom_nodes,
-        "models": payload.models,
-    }
+    task_id = str(uuid.uuid4())
+    task = deploy_machine(payload)
+    tasks[task_id] = task
+    return {"status": "started", "machine_id": task_id}
+
+
+@app.get("/machine-logs/{task_id}")
+async def machine_logs(task_id: str):
+    if tasks.get(task_id) is None:
+        return {"message": "Task is already finished! :)"}
+    return StreamingResponse(stream_logs(task_id), media_type="text/event-stream")
+
+
+async def stream_logs(task_id: str):
+    task = tasks.get(task_id)
+    if task is None:
+        return
+    try:
+        async for log_line in task:
+            logger.info("Sending event: %s", log_line)
+            yield f"data: {log_line}\n\n"
+    finally:
+        del tasks[task_id]
 
 
 @app.post("/generate-custom-nodes")
@@ -119,6 +150,8 @@ async def deploy_machine(payload: CreateMachinePayload):
 
     process = await asyncio.create_subprocess_shell(
         "modal deploy workflow.py",
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE,
         cwd=folder_path,
         env={**os.environ,
              "MODAL_TOKEN_ID": os.getenv("MODAL_TOKEN_ID"),
@@ -126,6 +159,26 @@ async def deploy_machine(payload: CreateMachinePayload):
              "COLUMNS": "10000",
              }
     )
+
+    async def read_stream(stream, prefix):
+        while True:
+            line = await stream.readline()
+            if line:
+                yield f"{prefix} {line.decode().strip()}"
+            else:
+                break
+
+    async def combine_streams(*streams):
+        for stream in streams:
+            async for item in stream:
+                yield item
+
+    stdout_stream = read_stream(process.stdout, "[STDOUT]")
+    stderr_stream = read_stream(process.stderr, "[STDERR]")
+    combined_streams = combine_streams(stdout_stream, stderr_stream)
+
+    async for line in combined_streams:
+        yield line
 
     await process.wait()
 
