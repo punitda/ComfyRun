@@ -112,7 +112,7 @@ async def stream_logs(task_id: str):
     try:
         async for log_line in task:
             logger.info("Sending event: %s", log_line)
-            yield f"data: {log_line}\n\n"
+            yield f"{log_line}"
     finally:
         del tasks[task_id]
 
@@ -160,11 +160,11 @@ async def deploy_machine(payload: CreateMachinePayload):
              }
     )
 
-    async def read_stream(stream, prefix):
+    async def read_stream(stream, event_type):
         while True:
             line = await stream.readline()
             if line:
-                yield f"{line.decode().strip()}"
+                yield f"event: {event_type}\ndata:{line.decode().strip()}\n\n"
             else:
                 break
 
@@ -173,8 +173,8 @@ async def deploy_machine(payload: CreateMachinePayload):
             async for item in stream:
                 yield item
 
-    stdout_stream = read_stream(process.stdout, "[STDOUT]")
-    stderr_stream = read_stream(process.stderr, "[STDERR]")
+    stdout_stream = read_stream(process.stdout, "stdout")
+    stderr_stream = read_stream(process.stderr, "stderr")
     combined_streams = combine_streams(stdout_stream, stderr_stream)
 
     async for line in combined_streams:
