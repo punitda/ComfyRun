@@ -66,3 +66,8 @@ export interface CreateMachineResponseBody {
   status: string;
   machine_id: string;
 }
+
+export interface LogEntry {
+  message: string;
+  timestamp: number;
+}
