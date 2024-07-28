@@ -61,3 +61,8 @@ export interface CreateMachineRequestBody {
   custom_nodes: OutputCustomNodesJson,
   models: OutputModel[]
 }
+
+export interface CreateMachineResponseBody {
+  status: string;
+  machine_id: string;
+}

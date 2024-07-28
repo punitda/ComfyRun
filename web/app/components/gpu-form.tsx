@@ -12,13 +12,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
+
+import { useFetcher, useNavigate } from "@remix-run/react";
+import { useEffect, useState } from "react";
+import { action } from "~/routes/create-machine/route";
+
 import { GPU, OutputCustomNodesJson, OutputModel } from "~/lib/types";
-import { useFetcher } from "@remix-run/react";
-import { useState } from "react";
+import { CREATE_MACHINE_FETCHER_KEY } from "~/lib/constants";
 
 const machineNameRegex = new RegExp(/^[a-zA-Z0-9._-]{1,63}$/);
 const machineNameErrorMsg =
   "Machine name may contain only alphanumeric characters, dashes, periods, and underscores, and must be shorter than 64 characters";
+
 export interface GpuFormProps {
   customNodesJson: OutputCustomNodesJson;
   modelsJson: OutputModel[];
@@ -30,9 +35,20 @@ export default function GpuForm({
   customNodesJson,
   modelsJson,
 }: GpuFormProps) {
-  const fetcher = useFetcher();
+  const fetcher = useFetcher<typeof action>({
+    key: CREATE_MACHINE_FETCHER_KEY,
+  });
+  const navigate = useNavigate();
   const isCreatingMachine = fetcher.state !== "idle";
   const [machineNameError, setMachineNameError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (fetcher.data?.status == "started" && fetcher.data.machine_id) {
+      navigate(`/machine-logs/${fetcher.data.machine_id}`);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetcher.data]);
+
   return (
     <fetcher.Form action="/create-machine" method="post">
       <div className="px-4 py-6 sm:p-8">

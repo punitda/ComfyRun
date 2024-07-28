@@ -2,6 +2,7 @@ import { json, useLoaderData } from "@remix-run/react";
 
 import {
   CreateMachineRequestBody,
+  CreateMachineResponseBody,
   CustomNode,
   FormStep,
   FormStepStatus,
@@ -54,8 +55,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     throw new Error("Unable to create machine");
   }
 
-  const data = await response.json();
-  return json({ data }, { status: 200 });
+  const { status, machine_id } =
+    (await response.json()) as CreateMachineResponseBody;
+  return json({ status, machine_id }, { status: 200 });
 };
 
 export const loader = async () => {
