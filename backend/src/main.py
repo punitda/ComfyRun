@@ -164,7 +164,7 @@ async def deploy_machine(payload: CreateMachinePayload):
         while True:
             line = await stream.readline()
             if line:
-                yield f"{prefix} {line.decode().strip()}"
+                yield f"{line.decode().strip()}"
             else:
                 break
 
