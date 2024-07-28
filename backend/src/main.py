@@ -36,7 +36,10 @@ load_dotenv()
 async def lifespan(app: FastAPI):
     # pylint: disable-next=global-statement
     global ext_node_map
-    ext_node_map = await fetch_node_map()
+    node_map = await fetch_node_map()
+    # Need to reorder and put some custom_nodes at the top otherwise comfyui cli picks up other random nodes during the lookup from workflow.json files
+    ext_node_map = reorder_dict(
+        node_map, ["https://github.com/cubiq/ComfyUI_IPAdapter_plus"])
     yield
     ext_node_map.clear()
 
@@ -277,3 +280,22 @@ async def fetch_node_map():
         except httpx.HTTPError:
             logger.error("Unable to fetch node map json from ComfyUIManager")
             return local_node_map
+
+
+def reorder_dict(original_dict, keys_to_move_first):
+    # Convert keys_to_move_first to a set for O(1) lookup
+    keys_set = set(keys_to_move_first)
+
+    reordered = dict()
+
+    # First, add the keys we want at the beginning
+    for key in keys_to_move_first:
+        if key in original_dict:
+            reordered[key] = original_dict[key]
+
+    # Then add the rest of the items
+    for key, value in original_dict.items():
+        if key not in keys_set:
+            reordered[key] = value
+
+    return reordered
