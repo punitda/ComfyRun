@@ -24,6 +24,11 @@ const machineNameRegex = new RegExp(/^[a-zA-Z0-9._-]{1,63}$/);
 const machineNameErrorMsg =
   "Machine name may contain only alphanumeric characters, dashes, periods, and underscores, and must be shorter than 64 characters";
 
+const packageNamesRegex = new RegExp(
+  /^([a-zA-Z0-9_-]+(?:==\d+(?:\.\d+)*)?(?:,\s*)?)+$/
+);
+const packageNamesErrorMsg =
+  "Please provide values in comma separated format as suggested in examples";
 export interface GpuFormProps {
   customNodesJson: OutputCustomNodesJson;
   modelsJson: OutputModel[];
@@ -41,6 +46,9 @@ export default function GpuForm({
   const navigate = useNavigate();
   const isCreatingMachine = fetcher.state !== "idle";
   const [machineNameError, setMachineNameError] = useState<string | null>(null);
+  const [packageNamesError, setPackageNamesError] = useState<string | null>(
+    null
+  );
 
   useEffect(() => {
     if (fetcher.data?.status == "started" && fetcher.data.machine_id) {
@@ -81,6 +89,39 @@ export default function GpuForm({
             <div className="mt-2">
               <GpuSelect />
             </div>
+          </div>
+          <div className="sm:col-span-4">
+            <Label id="dependencies">
+              Additional Python dependencies(optional)
+            </Label>
+            <div className="mt-2">
+              <Input
+                type="text"
+                id="dependencies"
+                name="dependencies"
+                placeholder="Enter package names (e.g., package1==1.0.0, package2)"
+                onChange={(e) => {
+                  if (packageNamesRegex.test(e.target.value)) {
+                    setPackageNamesError(null);
+                  } else {
+                    setPackageNamesError(packageNamesErrorMsg);
+                  }
+                }}
+              />
+              {packageNamesError ? (
+                <p className="mt-2 text-xs text-red-600">{packageNamesError}</p>
+              ) : null}
+            </div>
+            <p className="mt-2 text-xs text-primary/90">
+              Please provide list of additional python dependencies you want to
+              include in the comma separated values
+            </p>
+            <p className="text-xs mt-2">
+              E.x. -{" "}
+              <span className="inline items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
+                insightface==0.7.3, onnxruntime==1.17.3, onnxruntime-gpu
+              </span>
+            </p>
           </div>
           <div className="sm:col-span-4 hidden">
             <Textarea

@@ -58,8 +58,9 @@ export interface OutputModel {
 export interface CreateMachineRequestBody {
   machine_name: string;
   gpu: string;
-  custom_nodes: OutputCustomNodesJson,
-  models: OutputModel[]
+  custom_nodes: OutputCustomNodesJson;
+  models: OutputModel[];
+  additional_dependencies?: string;
 }
 
 export interface CreateMachineResponseBody {

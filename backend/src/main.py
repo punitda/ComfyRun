@@ -7,7 +7,7 @@ import uuid
 
 import logging
 from contextlib import asynccontextmanager
-from typing import Dict, List, Literal, Annotated
+from typing import Dict, List, Literal, Annotated, Optional
 from pydantic import BaseModel, HttpUrl
 
 from fastapi import FastAPI, File
@@ -91,6 +91,7 @@ class CreateMachinePayload(BaseModel):
     gpu: Gpu
     custom_nodes: CustomNodes
     models: List[Model]
+    additional_dependencies: Optional[str] = None,
 
 
 @app.post("/create-machine")
@@ -134,7 +135,8 @@ async def deploy_machine(payload: CreateMachinePayload):
 
     config = {
         "machine_name": slugify(payload.machine_name),
-        "gpu": payload.gpu.value
+        "gpu": payload.gpu.value,
+        "additional_dependencies": payload.additional_dependencies,
     }
 
     os.makedirs(os.path.dirname(f"{folder_path}/config.py"), exist_ok=True)

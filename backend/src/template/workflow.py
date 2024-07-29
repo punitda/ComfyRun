@@ -11,9 +11,15 @@ from helpers import (models_volume, MODELS_PATH, MOUNT_PATH,
 
 current_directory = os.path.dirname(os.path.realpath(__file__))
 
+default_dependencies = "comfy-cli=1.0.34"
+additional_dependencies = config["additional_dependencies"]
+dependencies_str = default_dependencies if not additional_dependencies else f"{default_dependencies}, {additional_dependencies}"
+dependencies: list[str] = [item.strip()
+                           for item in dependencies_str.split(',')]
+
 comfyui_image = (Image.debian_slim(python_version="3.10")
                  .apt_install("git")
-                 .pip_install("git+https://github.com/modal-labs/asgiproxy.git", "comfy-cli")
+                 .pip_install(dependencies)
                  .run_commands("comfy --skip-prompt install --nvidia")
                  .copy_local_file(f"{current_directory}/custom_nodes.json", "/root/")
                  .run_commands("comfy --skip-prompt node install-deps --deps=/root/custom_nodes.json")
