@@ -8,7 +8,7 @@ interface FormNavProps {
 export default function FormNav({ steps }: FormNavProps) {
   return (
     <nav aria-label="Progress">
-      <ol className="divide-y divide-gray-300 rounded-md border-background border-gray-300 md:flex md:divide-y-0">
+      <ol className="divide-y divide-border border-b border-border md:flex md:divide-y-0">
         {steps.map((step, stepIdx) => (
           <li key={step.name} className="relative md:flex md:flex-1">
             {step.status === "complete" ? (
