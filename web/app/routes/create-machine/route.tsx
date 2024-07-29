@@ -34,12 +34,15 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const models = JSON.parse(formData.get("models") as string) as OutputModel[];
   const machine_name = formData.get("machine_name") as string;
   const gpu = formData.get("gpu") as string;
+  const additional_dependencies =
+    (formData.get("dependencies") as string) ?? null;
 
   const requestBody: CreateMachineRequestBody = {
     machine_name,
     gpu,
     custom_nodes,
     models,
+    additional_dependencies,
   };
 
   const url = `${process.env.MACHINE_BUILDER_API_BASE_URL}/create-machine`;
