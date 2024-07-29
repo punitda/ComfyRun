@@ -213,7 +213,7 @@ function UploadWorkflowFileForm({
           <PopoverTrigger asChild>
             <InformationCircleIcon className="size-6 text-primary/70" />
           </PopoverTrigger>
-          <PopoverContent className="w-80">
+          <PopoverContent className="w-96">
             <p className="text-primary/90 text-sm mt-1">
               If you are not sure which custom nodes are used in your workflow,
               please upload the workflow file and we can generate the list of

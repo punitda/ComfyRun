@@ -13,12 +13,20 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "~/components/ui/popover";
+
 import { useFetcher, useNavigate } from "@remix-run/react";
 import { useEffect, useState } from "react";
 import { action } from "~/routes/create-machine/route";
 
 import { GPU, OutputCustomNodesJson, OutputModel } from "~/lib/types";
 import { CREATE_MACHINE_FETCHER_KEY } from "~/lib/constants";
+
+import { InformationCircleIcon } from "@heroicons/react/24/outline";
 
 const machineNameRegex = new RegExp(/^[a-zA-Z0-9._-]{1,63}$/);
 const machineNameErrorMsg =
@@ -85,7 +93,29 @@ export default function GpuForm({
             ) : null}
           </div>
           <div className="sm:col-span-4">
-            <Label>Select GPU</Label>
+            <div className="flex items-center space-x-2">
+              <Label htmlFor="workflow-file">Select GPU</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <InformationCircleIcon className="size-6 text-primary/70" />
+                </PopoverTrigger>
+                <PopoverContent className="w-96">
+                  <p className="text-primary/90 text-sm mt-1">
+                    You can find more about Modal&#39;s GPU pricing{" "}
+                    <a
+                      href="https://modal.com/pricing"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline"
+                    >
+                      here
+                    </a>
+                    . Selecting &#34;Any&#34; would pick up any GPU based on
+                    availability.
+                  </p>
+                </PopoverContent>
+              </Popover>
+            </div>
             <div className="mt-2">
               <GpuSelect />
             </div>
