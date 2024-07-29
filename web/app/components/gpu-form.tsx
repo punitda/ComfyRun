@@ -160,6 +160,7 @@ export default function GpuForm({
               hidden
               id="custom-nodes"
               name="custom_nodes"
+              readOnly
             />
             <Textarea
               placeholder="Type your message here."
@@ -167,6 +168,7 @@ export default function GpuForm({
               id="models"
               name="models"
               hidden
+              readOnly
             />
           </div>
         </div>
