@@ -12,6 +12,7 @@ import {
 import { Check, ChevronsUpDown } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Label } from "~/components/ui/label";
+import { Switch } from "~/components/ui/switch";
 import {
   Popover,
   PopoverContent,
@@ -22,6 +23,7 @@ import { Model } from "~/lib/types";
 import { cn } from "~/lib/utils";
 import { CivitAIModelComboBox, loader } from "~/routes/civitai-search/route";
 import { useFetcher } from "@remix-run/react";
+import { InformationCircleIcon } from "@heroicons/react/24/outline";
 
 export interface ModelsFormProps {
   models: Model[];
@@ -48,6 +50,7 @@ export default function ModelsForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const [skipModelsDownload, setSkipModelsDownload] = useState<boolean>(false);
   return (
     <div>
       <div className="px-4 py-6 sm:p-8">
@@ -72,6 +75,27 @@ export default function ModelsForm({
               />
             </div>
           </div>
+          <div className="flex items-center space-x-2 sm:col-span-full">
+            <Switch
+              id="skip-model-download"
+              onCheckedChange={(value) => {
+                setSkipModelsDownload(value);
+              }}
+            />
+            <Label htmlFor="skip-model-download">Skip Downloading Models</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <InformationCircleIcon className="size-6 text-primary/70" />
+              </PopoverTrigger>
+              <PopoverContent className="w-96">
+                <p className="text-primary/90 text-sm mt-1">
+                  Models are shared between machines. If you&#39;ve already
+                  downloaded all the models you need during the previous machine
+                  builds you can skip this step :)
+                </p>
+              </PopoverContent>
+            </Popover>
+          </div>
         </div>
       </div>
       <div className="flex items-center justify-end gap-x-6 border-t border-gray-900/10 px-4 py-4 sm:px-8">
@@ -82,7 +106,8 @@ export default function ModelsForm({
           onClick={onNextStep}
           disabled={
             selectedCivitAIModels.length === 0 &&
-            selectedComfyUIModels.length === 0
+            selectedComfyUIModels.length === 0 &&
+            !skipModelsDownload
           }
         >
           Next
