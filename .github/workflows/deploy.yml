@@ -1,5 +1,9 @@
 name: Deploy web & backend
-on: workflow_dispatch 
+
+on:
+  push:
+    branches:
+      - 'main'
 jobs:
   deploy:
     name: Deploy app
