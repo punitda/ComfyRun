@@ -46,7 +46,8 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 origins = [
-    "http://localhost:5173"
+    "http://localhost:5173",
+    "https://punitd-modal-comfyui-deploy.fly.dev"
 ]
 app.add_middleware(
     CORSMiddleware,
