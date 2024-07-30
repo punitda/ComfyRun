@@ -3,7 +3,7 @@ services:
   app:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.local
     volumes:
       - ./src:/app/src
       - ./.env:/app/.env
