@@ -59,8 +59,11 @@ export default function GpuForm({
   );
 
   useEffect(() => {
-    if (fetcher.data?.status == "started" && fetcher.data.machine_id) {
-      navigate(`/machine-logs/${fetcher.data.machine_id}`);
+    if (!fetcher.data) return;
+    if ("status" in fetcher.data && "machine_id" in fetcher.data) {
+      if (fetcher.data.status == "started" && fetcher.data.machine_id) {
+        navigate(`/machine-logs/${fetcher.data.machine_id}`);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetcher.data]);
