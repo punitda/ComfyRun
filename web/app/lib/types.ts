@@ -68,6 +68,10 @@ export interface CreateMachineResponseBody {
   machine_id: string;
 }
 
+export interface CreateMachineErrorResponseBody {
+  error: string;
+}
+
 export interface LogEntry {
   message: string;
   timestamp: number;

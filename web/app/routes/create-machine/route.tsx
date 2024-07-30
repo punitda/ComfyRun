@@ -1,6 +1,12 @@
-import { json, useLoaderData } from "@remix-run/react";
+import {
+  json,
+  useActionData,
+  useFetcher,
+  useLoaderData,
+} from "@remix-run/react";
 
 import {
+  CreateMachineErrorResponseBody,
   CreateMachineRequestBody,
   CreateMachineResponseBody,
   CustomNode,
@@ -13,11 +19,13 @@ import {
 import FormNav from "~/components/form-nav";
 import CustomNodeForm from "~/components/custom-node-form";
 import type { ActionFunctionArgs } from "@remix-run/node";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ModelsForm from "~/components/models-form";
 import GpuForm from "~/components/gpu-form";
 import { getCustomNodes, getModels } from "~/server/github";
 import { convertCustomNodesJson, convertModelsJson } from "~/lib/utils";
+import { CREATE_MACHINE_FETCHER_KEY } from "../../lib/constants";
+import { useToast } from "~/components/ui/use-toast";
 
 const initialSteps: FormStep[] = [
   { id: "01", name: "Nodes", href: "#", status: "current" },
@@ -46,21 +54,32 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   };
 
   const url = `${process.env.MACHINE_BUILDER_API_BASE_URL}/create-machine`;
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(requestBody),
-  });
-
-  if (!response.ok) {
-    throw new Error("Unable to create machine");
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(requestBody),
+    });
+    if (!response.ok) {
+      return json<CreateMachineErrorResponseBody>(
+        { error: "Unable to create machine" },
+        { status: response.status }
+      );
+    }
+    const { status, machine_id } =
+      (await response.json()) as CreateMachineResponseBody;
+    return json<CreateMachineResponseBody>(
+      { status, machine_id },
+      { status: 200 }
+    );
+  } catch (error) {
+    return json<CreateMachineErrorResponseBody>(
+      { error: "Unable to create machine" },
+      { status: 400 }
+    );
   }
-
-  const { status, machine_id } =
-    (await response.json()) as CreateMachineResponseBody;
-  return json({ status, machine_id }, { status: 200 });
 };
 
 export const loader = async () => {
@@ -73,7 +92,13 @@ export const loader = async () => {
 };
 
 export default function Index() {
+  const createMachineFetcher = useFetcher<typeof action>({
+    key: CREATE_MACHINE_FETCHER_KEY,
+  });
   const { custom_nodes, models } = useLoaderData<typeof loader>();
+
+  const { toast } = useToast();
+
   const [steps, setSteps] = useState<FormStep[]>(initialSteps);
   const currentStep = steps.find((step) => step.status == "current");
 
@@ -124,6 +149,18 @@ export default function Index() {
   function updateSelectedCivitaiModels(models: Model[]) {
     setSelectedCivitaiModels(models);
   }
+
+  useEffect(() => {
+    if (!createMachineFetcher.data) return;
+    if ("error" in createMachineFetcher.data) {
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong",
+        description: createMachineFetcher.data.error,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [createMachineFetcher.data]);
 
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col">

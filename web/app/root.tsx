@@ -9,6 +9,8 @@ import {
 } from "@remix-run/react";
 import "./tailwind.css";
 
+import { Toaster } from "~/components/ui/toaster";
+
 export async function loader() {
   return json({
     ENV: {
@@ -33,6 +35,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           }}
         />
         {children}
+        <Toaster />
         <ScrollRestoration />
         <Scripts />
       </body>
