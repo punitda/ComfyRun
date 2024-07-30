@@ -1,6 +1,12 @@
-import { json, useLoaderData } from "@remix-run/react";
+import {
+  json,
+  useActionData,
+  useFetcher,
+  useLoaderData,
+} from "@remix-run/react";
 
 import {
+  CreateMachineErrorResponseBody,
   CreateMachineRequestBody,
   CreateMachineResponseBody,
   CustomNode,
@@ -46,21 +52,32 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   };
 
   const url = `${process.env.MACHINE_BUILDER_API_BASE_URL}/create-machine`;
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(requestBody),
-  });
-
-  if (!response.ok) {
-    throw new Error("Unable to create machine");
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(requestBody),
+    });
+    if (!response.ok) {
+      return json<CreateMachineErrorResponseBody>(
+        { error: "Unable to create machine" },
+        { status: response.status }
+      );
+    }
+    const { status, machine_id } =
+      (await response.json()) as CreateMachineResponseBody;
+    return json<CreateMachineResponseBody>(
+      { status, machine_id },
+      { status: 200 }
+    );
+  } catch (error) {
+    return json<CreateMachineErrorResponseBody>(
+      { error: "Unable to create machine" },
+      { status: 400 }
+    );
   }
-
-  const { status, machine_id } =
-    (await response.json()) as CreateMachineResponseBody;
-  return json({ status, machine_id }, { status: 200 });
 };
 
 export const loader = async () => {
