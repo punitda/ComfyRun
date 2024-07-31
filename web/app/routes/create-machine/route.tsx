@@ -1,20 +1,17 @@
 import {
   json,
-  useActionData,
+  redirect,
   useFetcher,
   useLoaderData,
 } from "@remix-run/react";
 
 import {
   CreateMachineErrorResponseBody,
-  CreateMachineRequestBody,
   CreateMachineResponseBody,
   CustomNode,
   FormStep,
   FormStepStatus,
   Model,
-  OutputCustomNodesJson,
-  OutputModel,
 } from "~/lib/types";
 import FormNav from "~/components/form-nav";
 import CustomNodeForm from "~/components/custom-node-form";
@@ -26,6 +23,7 @@ import { getCustomNodes, getModels } from "~/server/github";
 import { convertCustomNodesJson, convertModelsJson } from "~/lib/utils";
 import { CREATE_MACHINE_FETCHER_KEY } from "../../lib/constants";
 import { useToast } from "~/components/ui/use-toast";
+import { generateCreateMachineRequestBody } from "../../server/utils";
 
 const initialSteps: FormStep[] = [
   { id: "01", name: "Nodes", href: "#", status: "current" },
@@ -35,26 +33,10 @@ const initialSteps: FormStep[] = [
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
-
-  const custom_nodes = JSON.parse(
-    formData.get("custom_nodes") as string
-  ) as OutputCustomNodesJson;
-  const models = JSON.parse(formData.get("models") as string) as OutputModel[];
-  const machine_name = formData.get("machine_name") as string;
-  const gpu = formData.get("gpu") as string;
-  const additional_dependencies =
-    (formData.get("dependencies") as string) ?? null;
-
-  const requestBody: CreateMachineRequestBody = {
-    machine_name,
-    gpu,
-    custom_nodes,
-    models,
-    additional_dependencies,
-  };
-
-  const url = `${process.env.MACHINE_BUILDER_API_BASE_URL}/create-machine`;
+  const requestBody = generateCreateMachineRequestBody(formData);
+  
   try {
+    const url = `${process.env.MACHINE_BUILDER_API_BASE_URL}/create-machine`;
     const response = await fetch(url, {
       method: "POST",
       headers: {
@@ -62,19 +44,19 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       },
       body: JSON.stringify(requestBody),
     });
+
     if (!response.ok) {
       return json<CreateMachineErrorResponseBody>(
         { error: "Unable to create machine" },
         { status: response.status }
       );
     }
-    const { status, machine_id } =
+
+    const { machine_id } =
       (await response.json()) as CreateMachineResponseBody;
-    return json<CreateMachineResponseBody>(
-      { status, machine_id },
-      { status: 200 }
-    );
+    return redirect(`/machine-logs/${machine_id}`)
   } catch (error) {
+    console.error('create-machine-error', error);
     return json<CreateMachineErrorResponseBody>(
       { error: "Unable to create machine" },
       { status: 400 }

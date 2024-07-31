@@ -19,8 +19,8 @@ import {
   PopoverTrigger,
 } from "~/components/ui/popover";
 
-import { useFetcher, useNavigate } from "@remix-run/react";
-import { useEffect, useState } from "react";
+import { useFetcher } from "@remix-run/react";
+import { useState } from "react";
 import { action } from "~/routes/create-machine/route";
 
 import { GPU, OutputCustomNodesJson, OutputModel } from "~/lib/types";
@@ -51,22 +51,11 @@ export default function GpuForm({
   const fetcher = useFetcher<typeof action>({
     key: CREATE_MACHINE_FETCHER_KEY,
   });
-  const navigate = useNavigate();
   const isCreatingMachine = fetcher.state !== "idle";
   const [machineNameError, setMachineNameError] = useState<string | null>(null);
   const [packageNamesError, setPackageNamesError] = useState<string | null>(
     null
   );
-
-  useEffect(() => {
-    if (!fetcher.data) return;
-    if ("status" in fetcher.data && "machine_id" in fetcher.data) {
-      if (fetcher.data.status == "started" && fetcher.data.machine_id) {
-        navigate(`/machine-logs/${fetcher.data.machine_id}`);
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetcher.data]);
 
   return (
     <fetcher.Form action="/create-machine" method="post">
