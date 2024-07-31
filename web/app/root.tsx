@@ -1,6 +1,6 @@
+import { LoaderFunctionArgs } from "@remix-run/node";
 import {
   json,
-  Link,
   Links,
   Meta,
   Outlet,
@@ -9,14 +9,12 @@ import {
   useLoaderData,
   useLocation,
 } from "@remix-run/react";
-import { LoaderFunctionArgs } from "@remix-run/node";
 import "./tailwind.css";
 
 import { Toaster } from "~/components/ui/toaster";
 
+import { ClerkApp, SignedIn, UserButton } from "@clerk/remix";
 import { rootAuthLoader } from "@clerk/remix/ssr.server";
-import { ClerkApp, SignedIn, SignedOut, UserButton } from "@clerk/remix";
-import { Button } from "~/components/ui/button";
 
 export async function loader(args: LoaderFunctionArgs) {
   return rootAuthLoader(args, () => {
@@ -44,8 +42,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
             __html: `window.ENV = ${JSON.stringify(data.ENV)}`,
           }}
         />
-        {children}
         <Toaster />
+        {children}
         <ScrollRestoration />
         <Scripts />
       </body>
