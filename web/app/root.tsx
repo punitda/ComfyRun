@@ -7,17 +7,24 @@ import {
   ScrollRestoration,
   useLoaderData,
 } from "@remix-run/react";
+import { LoaderFunctionArgs } from "@remix-run/node";
 import "./tailwind.css";
 
 import { Toaster } from "~/components/ui/toaster";
 
-export async function loader() {
-  return json({
-    ENV: {
-      MACHINE_BUILDER_API_BASE_URL: process.env.MACHINE_BUILDER_API_BASE_URL,
-    },
+import { rootAuthLoader } from "@clerk/remix/ssr.server";
+import { ClerkApp } from "@clerk/remix";
+
+export async function loader(args: LoaderFunctionArgs) {
+  return rootAuthLoader(args, () => {
+    return json({
+      ENV: {
+        MACHINE_BUILDER_API_BASE_URL: process.env.MACHINE_BUILDER_API_BASE_URL,
+      },
+    });
   });
 }
+
 export function Layout({ children }: { children: React.ReactNode }) {
   const data = useLoaderData<typeof loader>();
   return (
@@ -43,6 +50,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function App() {
+function App() {
   return <Outlet />;
 }
+
+export default ClerkApp(App);
