@@ -112,7 +112,7 @@ export default function MachineLogs() {
 
   return (
     <div className="sm:px-6 lg:px-8">
-      <h2 className="text-xl text-primary/90 mt-8">Machine Logs</h2>
+      <h2 className="text-xl text-primary/90 mt-2">Machine Logs</h2>
       <div className="h-screen pt-4 pb-8">
         <AutoSizer>
           {({ height, width }) => (
