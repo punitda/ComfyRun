@@ -20,7 +20,7 @@ import { CREATE_MACHINE_FETCHER_KEY } from "../../lib/constants";
 import { useToast } from "~/components/ui/use-toast";
 import { generateCreateMachineRequestBody } from "../../server/utils";
 
-import { getAuth } from "@clerk/remix/ssr.server";
+import { requireAuth } from "~/server/auth";
 
 const initialSteps: FormStep[] = [
   { id: "01", name: "Nodes", href: "#", status: "current" },
@@ -61,9 +61,13 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 export const loader = async (args: LoaderFunctionArgs) => {
-  const { userId } = await getAuth(args);
-  if (!userId) {
-    return redirect("/sign-up");
+  const data = await requireAuth(args);
+  if ("error" in data) {
+    const errorType = data.error;
+    if (errorType === "EMAIL_NOT_ALLOWED")
+      return redirect(`/sign-in?error=${errorType}`);
+    if (errorType == "LOGGED_OUT") return redirect("/sign-in");
+    return redirect("/sign-in");
   }
 
   const [custom_nodes, models] = await Promise.all([

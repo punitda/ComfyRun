@@ -1,7 +1,10 @@
 import { SignUp, ClerkLoading, ClerkLoaded } from "@clerk/remix";
 import { Loader2 } from "lucide-react";
 
+import { useEmailNotAllowedHook } from "~/lib/hooks";
+
 export default function SignInPage() {
+  useEmailNotAllowedHook("SIGN-UP");
   return (
     <div>
       <div className="fixed inset-0 flex items-center justify-center">
