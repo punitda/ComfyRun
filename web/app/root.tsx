@@ -1,11 +1,13 @@
 import {
   json,
+  Link,
   Links,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
   useLoaderData,
+  useLocation,
 } from "@remix-run/react";
 import { LoaderFunctionArgs } from "@remix-run/node";
 import "./tailwind.css";
@@ -13,7 +15,8 @@ import "./tailwind.css";
 import { Toaster } from "~/components/ui/toaster";
 
 import { rootAuthLoader } from "@clerk/remix/ssr.server";
-import { ClerkApp } from "@clerk/remix";
+import { ClerkApp, SignedIn, SignedOut, UserButton } from "@clerk/remix";
+import { Button } from "~/components/ui/button";
 
 export async function loader(args: LoaderFunctionArgs) {
   return rootAuthLoader(args, () => {
@@ -51,7 +54,27 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 function App() {
-  return <Outlet />;
+  const location = useLocation();
+  const isAuthPage = ["/sign-in", "/sign-up"].includes(location.pathname);
+
+  return (
+    <div className="flex flex-col">
+      {!isAuthPage ? (
+        <nav className="p-4">
+          <div className="container mx-auto flex justify-between items-center">
+            <div className="flex items-center space-x-4 ml-auto">
+              <SignedIn>
+                <UserButton />
+              </SignedIn>
+            </div>
+          </div>
+        </nav>
+      ) : null}
+      <main className="flex-grow">
+        <Outlet />
+      </main>
+    </div>
+  );
 }
 
 export default ClerkApp(App);
