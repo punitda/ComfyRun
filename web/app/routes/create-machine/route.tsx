@@ -1,9 +1,4 @@
-import {
-  json,
-  redirect,
-  useFetcher,
-  useLoaderData,
-} from "@remix-run/react";
+import { json, redirect, useFetcher, useLoaderData } from "@remix-run/react";
 
 import {
   CreateMachineErrorResponseBody,
@@ -34,7 +29,7 @@ const initialSteps: FormStep[] = [
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const requestBody = generateCreateMachineRequestBody(formData);
-  
+
   try {
     const url = `${process.env.MACHINE_BUILDER_API_BASE_URL}/create-machine`;
     const response = await fetch(url, {
@@ -52,11 +47,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       );
     }
 
-    const { machine_id } =
-      (await response.json()) as CreateMachineResponseBody;
-    return redirect(`/machine-logs/${machine_id}`)
+    const { machine_id } = (await response.json()) as CreateMachineResponseBody;
+    return redirect(`/machine-logs/${machine_id}`);
   } catch (error) {
-    console.error('create-machine-error', error);
+    console.error("create-machine-error", error);
     return json<CreateMachineErrorResponseBody>(
       { error: "Unable to create machine" },
       { status: 400 }
