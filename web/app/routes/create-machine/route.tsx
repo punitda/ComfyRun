@@ -10,7 +10,7 @@ import {
 } from "~/lib/types";
 import FormNav from "~/components/form-nav";
 import CustomNodeForm from "~/components/custom-node-form";
-import type { ActionFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { useEffect, useState } from "react";
 import ModelsForm from "~/components/models-form";
 import GpuForm from "~/components/gpu-form";
@@ -19,6 +19,8 @@ import { convertCustomNodesJson, convertModelsJson } from "~/lib/utils";
 import { CREATE_MACHINE_FETCHER_KEY } from "../../lib/constants";
 import { useToast } from "~/components/ui/use-toast";
 import { generateCreateMachineRequestBody } from "../../server/utils";
+
+import { getAuth } from "@clerk/remix/ssr.server";
 
 const initialSteps: FormStep[] = [
   { id: "01", name: "Nodes", href: "#", status: "current" },
@@ -58,7 +60,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   }
 };
 
-export const loader = async () => {
+export const loader = async (args: LoaderFunctionArgs) => {
+  const { userId } = await getAuth(args);
+  if (!userId) {
+    return redirect("/sign-up");
+  }
+
   const [custom_nodes, models] = await Promise.all([
     getCustomNodes(),
     getModels(),
