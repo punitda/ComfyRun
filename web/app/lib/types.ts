@@ -54,7 +54,6 @@ export interface OutputModel {
   path: string;
 }
 
-
 export interface CreateMachineRequestBody {
   machine_name: string;
   gpu: string;
@@ -75,5 +74,13 @@ export interface CreateMachineErrorResponseBody {
 export interface LogEntry {
   message: string;
   timestamp: number;
-  type: 'stdout' | 'stderr'
+  type: "stdout" | "stderr";
 }
+
+export type SignInError = LOGGED_OUT | EMAIL_NOT_ALLOWED;
+
+export const LOGGED_OUT = "LOGGED_OUT" as const;
+export type LOGGED_OUT = typeof LOGGED_OUT;
+
+export const EMAIL_NOT_ALLOWED = "EMAIL_NOT_ALLOWED" as const;
+export type EMAIL_NOT_ALLOWED = typeof EMAIL_NOT_ALLOWED;
