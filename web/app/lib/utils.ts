@@ -56,18 +56,25 @@ export function convertModelsJson(input: Model[]): OutputModel[] {
     const nameWithoutExtension = item.filename.split(".")[0];
 
     let path: string;
-    if (!item.type || item.type === "default" || item.type == "checkpoint") {
+    if (!item.type) {
       path = "checkpoints";
-    } else if (item.type === "IP-Adapter") {
-      path = "ipadapter";
-    } else {
+    } else if (item.type === "upscale") {
+      path = "upscale_models";
+    } else if (
+      (item.type === "checkpoint" || item.type === "checkpoints") &&
+      item.save_path === "default"
+    ) {
+      path = "checkpoints";
+    } else if (item.type && item.save_path === "default") {
       path = item.type;
+    } else {
+      path = item.save_path;
     }
 
     return {
       name: nameWithoutExtension,
       url: item.url,
-      path: path,
+      path: path.toLocaleLowerCase(),
     };
   });
 }
