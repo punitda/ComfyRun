@@ -56,7 +56,7 @@ export function convertModelsJson(input: Model[]): OutputModel[] {
     const nameWithoutExtension = item.filename.split(".")[0];
 
     let path: string;
-    if (!item.type || item.type === "default") {
+    if (!item.type || item.type === "default" || item.type == "checkpoint") {
       path = "checkpoints";
     } else if (item.type === "IP-Adapter") {
       path = "ipadapter";
