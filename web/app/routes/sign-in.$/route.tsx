@@ -1,9 +1,28 @@
 import { SignIn, ClerkLoading, ClerkLoaded } from "@clerk/remix";
+import { useSearchParams } from "@remix-run/react";
 import { Loader2 } from "lucide-react";
-import { useEmailNotAllowedHook } from "~/lib/hooks";
+import { useEffect } from "react";
+
+import { EMAIL_NOT_ALLOWED } from "~/lib/types";
+import { toast } from "~/components/ui/use-toast";
 
 export default function SignInPage() {
-  useEmailNotAllowedHook();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  useEffect(() => {
+    const signInError = searchParams.get("error");
+
+    if (signInError === EMAIL_NOT_ALLOWED) {
+      toast({
+        variant: "destructive",
+        title: "Sign In error",
+        description:
+          "You can only sign-in using email id added to the email whitelist",
+      });
+      setSearchParams(new URLSearchParams());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
   return (
     <div>
       <div className="fixed inset-0 flex items-center justify-center">
