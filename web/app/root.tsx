@@ -1,3 +1,4 @@
+import { LoaderFunctionArgs } from "@remix-run/node";
 import {
   json,
   Links,
@@ -6,18 +7,25 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
+  useLocation,
 } from "@remix-run/react";
 import "./tailwind.css";
 
 import { Toaster } from "~/components/ui/toaster";
 
-export async function loader() {
-  return json({
-    ENV: {
-      MACHINE_BUILDER_API_BASE_URL: process.env.MACHINE_BUILDER_API_BASE_URL,
-    },
+import { ClerkApp, SignedIn, UserButton } from "@clerk/remix";
+import { rootAuthLoader } from "@clerk/remix/ssr.server";
+
+export async function loader(args: LoaderFunctionArgs) {
+  return rootAuthLoader(args, () => {
+    return json({
+      ENV: {
+        MACHINE_BUILDER_API_BASE_URL: process.env.MACHINE_BUILDER_API_BASE_URL,
+      },
+    });
   });
 }
+
 export function Layout({ children }: { children: React.ReactNode }) {
   const data = useLoaderData<typeof loader>();
   return (
@@ -34,8 +42,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
             __html: `window.ENV = ${JSON.stringify(data.ENV)}`,
           }}
         />
-        {children}
         <Toaster />
+        {children}
         <ScrollRestoration />
         <Scripts />
       </body>
@@ -43,6 +51,28 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function App() {
-  return <Outlet />;
+function App() {
+  const location = useLocation();
+  const isAuthPage = ["/sign-in", "/sign-up"].includes(location.pathname);
+
+  return (
+    <div className="flex flex-col">
+      {!isAuthPage ? (
+        <nav className="p-4">
+          <div className="container mx-auto flex justify-between items-center">
+            <div className="flex items-center space-x-4 ml-auto">
+              <SignedIn>
+                <UserButton />
+              </SignedIn>
+            </div>
+          </div>
+        </nav>
+      ) : null}
+      <main className="flex-grow">
+        <Outlet />
+      </main>
+    </div>
+  );
 }
+
+export default ClerkApp(App);

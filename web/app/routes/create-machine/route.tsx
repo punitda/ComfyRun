@@ -1,9 +1,4 @@
-import {
-  json,
-  redirect,
-  useFetcher,
-  useLoaderData,
-} from "@remix-run/react";
+import { json, redirect, useFetcher, useLoaderData } from "@remix-run/react";
 
 import {
   CreateMachineErrorResponseBody,
@@ -15,7 +10,7 @@ import {
 } from "~/lib/types";
 import FormNav from "~/components/form-nav";
 import CustomNodeForm from "~/components/custom-node-form";
-import type { ActionFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { useEffect, useState } from "react";
 import ModelsForm from "~/components/models-form";
 import GpuForm from "~/components/gpu-form";
@@ -24,6 +19,8 @@ import { convertCustomNodesJson, convertModelsJson } from "~/lib/utils";
 import { CREATE_MACHINE_FETCHER_KEY } from "../../lib/constants";
 import { useToast } from "~/components/ui/use-toast";
 import { generateCreateMachineRequestBody } from "../../server/utils";
+
+import { requireAuth } from "~/server/auth";
 
 const initialSteps: FormStep[] = [
   { id: "01", name: "Nodes", href: "#", status: "current" },
@@ -34,7 +31,7 @@ const initialSteps: FormStep[] = [
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const requestBody = generateCreateMachineRequestBody(formData);
-  
+
   try {
     const url = `${process.env.MACHINE_BUILDER_API_BASE_URL}/create-machine`;
     const response = await fetch(url, {
@@ -52,11 +49,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       );
     }
 
-    const { machine_id } =
-      (await response.json()) as CreateMachineResponseBody;
-    return redirect(`/machine-logs/${machine_id}`)
+    const { machine_id } = (await response.json()) as CreateMachineResponseBody;
+    return redirect(`/machine-logs/${machine_id}`);
   } catch (error) {
-    console.error('create-machine-error', error);
+    console.error("create-machine-error", error);
     return json<CreateMachineErrorResponseBody>(
       { error: "Unable to create machine" },
       { status: 400 }
@@ -64,7 +60,16 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   }
 };
 
-export const loader = async () => {
+export const loader = async (args: LoaderFunctionArgs) => {
+  const data = await requireAuth(args);
+  if ("error" in data) {
+    const errorType = data.error;
+    if (errorType === "EMAIL_NOT_ALLOWED")
+      return redirect(`/sign-in?error=${errorType}`);
+    if (errorType == "LOGGED_OUT") return redirect("/sign-in");
+    return redirect("/sign-in");
+  }
+
   const [custom_nodes, models] = await Promise.all([
     getCustomNodes(),
     getModels(),
