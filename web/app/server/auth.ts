@@ -12,8 +12,6 @@ export async function requireAuth(
   args: LoaderFunctionArgs
 ): Promise<{ user: User } | { error: SignInError }> {
   const { userId, sessionId } = await getAuth(args);
-  console.log("userId", userId);
-  console.log("sessionId", sessionId);
 
   if (!userId) {
     return { error: "LOGGED_OUT" };
@@ -21,7 +19,6 @@ export async function requireAuth(
 
   const user = await clerk.users.getUser(userId);
   const userEmail = user.emailAddresses[0]?.emailAddress;
-  console.log("userEmail", userEmail);
 
   if (!userEmail || !EMAIL_WHITELIST.includes(userEmail)) {
     await clerk.sessions.revokeSession(sessionId);
