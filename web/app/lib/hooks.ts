@@ -16,7 +16,7 @@ export function useEmailNotAllowedHook(page: Page) {
         title: page === "SIGN-IN" ? "Sign In error" : "Sign Up error",
         description: `You can only ${
           page === "SIGN-IN" ? "sign-in" : "signup"
-        } using email addresses added to the whitelist in .env file`,
+        } using email id added to the email whitelist`,
       });
       setSearchParams(new URLSearchParams());
     }
