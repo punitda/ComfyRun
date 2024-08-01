@@ -3,7 +3,7 @@ import { Loader2 } from "lucide-react";
 import { useEmailNotAllowedHook } from "~/lib/hooks";
 
 export default function SignInPage() {
-  useEmailNotAllowedHook("SIGN-IN");
+  useEmailNotAllowedHook();
   return (
     <div>
       <div className="fixed inset-0 flex items-center justify-center">
@@ -21,7 +21,13 @@ export default function SignInPage() {
           </div>
           <div className="mt-4 sm:mx-auto sm:w-full sm:max-w-[480px]">
             <div className="px-6 py-6 sm:px-12">
-              <SignIn />
+              <SignIn
+                appearance={{
+                  elements: {
+                    footerAction: "hidden",
+                  },
+                }}
+              />
             </div>
           </div>
         </div>
