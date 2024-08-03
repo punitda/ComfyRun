@@ -21,10 +21,10 @@ import {
 
 import { useFetcher } from "@remix-run/react";
 import { useState } from "react";
-import { action } from "~/routes/create-machine/route";
+import { action } from "~/routes/create-app/route";
 
 import { GPU, OutputCustomNodesJson, OutputModel } from "~/lib/types";
-import { CREATE_MACHINE_FETCHER_KEY } from "~/lib/constants";
+import { CREATE_APP_FETCHER_KEY } from "~/lib/constants";
 
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 
@@ -49,7 +49,7 @@ export default function GpuForm({
   modelsJson,
 }: GpuFormProps) {
   const fetcher = useFetcher<typeof action>({
-    key: CREATE_MACHINE_FETCHER_KEY,
+    key: CREATE_APP_FETCHER_KEY,
   });
   const isCreatingMachine = fetcher.state !== "idle";
   const [machineNameError, setMachineNameError] = useState<string | null>(null);
@@ -58,7 +58,7 @@ export default function GpuForm({
   );
 
   return (
-    <fetcher.Form action="/create-machine" method="post">
+    <fetcher.Form action="/create-app" method="post">
       <div className="px-4 py-6 sm:p-8">
         <div className="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
           <div className="sm:col-span-4">
@@ -174,7 +174,7 @@ export default function GpuForm({
           Back
         </Button>
         <Button type="submit" disabled={isCreatingMachine}>
-          Create Machine
+          Create App
         </Button>
       </div>
     </fetcher.Form>

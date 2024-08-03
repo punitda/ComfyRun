@@ -12,7 +12,7 @@ export default function FormNav({ steps }: FormNavProps) {
         {steps.map((step, stepIdx) => (
           <li key={step.name} className="relative md:flex md:flex-1">
             {step.status === "complete" ? (
-              <a href={step.href} className="group flex w-full items-center">
+              <div className="group flex w-full items-center">
                 <span className="flex items-center px-6 py-4 text-sm font-medium">
                   <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-primary/90 group-hover:bg-primary">
                     <CheckIcon
@@ -24,10 +24,9 @@ export default function FormNav({ steps }: FormNavProps) {
                     {step.name}
                   </span>
                 </span>
-              </a>
+              </div>
             ) : step.status === "current" ? (
-              <a
-                href={step.href}
+              <div
                 aria-current="step"
                 className="flex items-center px-6 py-4 text-sm font-medium"
               >
@@ -37,9 +36,9 @@ export default function FormNav({ steps }: FormNavProps) {
                 <span className="ml-4 text-sm font-medium text-primary">
                   {step.name}
                 </span>
-              </a>
+              </div>
             ) : (
-              <a href={step.href} className="group flex items-center">
+              <div className="group flex items-center">
                 <span className="flex items-center px-6 py-4 text-sm font-medium">
                   <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border-2 border-secondary">
                     <span className="text-gray-500 group-hover:text-primary">
@@ -50,7 +49,7 @@ export default function FormNav({ steps }: FormNavProps) {
                     {step.name}
                   </span>
                 </span>
-              </a>
+              </div>
             )}
 
             {stepIdx !== steps.length - 1 ? (

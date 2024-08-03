@@ -54,7 +54,7 @@ export interface OutputModel {
   path: string;
 }
 
-export interface CreateMachineRequestBody {
+export interface CreateAppRequestBody {
   machine_name: string;
   gpu: string;
   custom_nodes: OutputCustomNodesJson;
@@ -62,12 +62,12 @@ export interface CreateMachineRequestBody {
   additional_dependencies?: string;
 }
 
-export interface CreateMachineResponseBody {
+export interface CreateAppSuccessResponseBody {
   status: string;
-  machine_id: string;
+  task_id: string;
 }
 
-export interface CreateMachineErrorResponseBody {
+export interface CreateAppErrorResponseBody {
   error: string;
 }
 

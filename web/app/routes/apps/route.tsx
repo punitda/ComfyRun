@@ -146,7 +146,7 @@ function NoAppsLayout() {
       <div className="mt-6">
         <Button>
           <PlusIcon aria-hidden="true" className="-ml-0.5 mr-1.5 h-5 w-5" />
-          <Link to="/create-machine">New App</Link>
+          <Link to="/create-app">New App</Link>
         </Button>
       </div>
     </div>
@@ -176,7 +176,7 @@ function AppsLayout({ apps }: AppsLayoutProps) {
         </div>
         <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
           <Button>
-            <Link to="/create-machine">Create App</Link>
+            <Link to="/create-app">Create App</Link>
           </Button>
         </div>
       </div>

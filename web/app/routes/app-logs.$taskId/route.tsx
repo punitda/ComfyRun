@@ -7,13 +7,12 @@ import {
   ListOnScrollProps,
 } from "react-window";
 import AutoSizer from "react-virtualized-auto-sizer";
-import { LogEntry } from "~/lib/types";
 
 const MAX_LOGS = 1000;
 const UPDATE_INTERVAL = 300; // ms
 
 export default function MachineLogs() {
-  const { machineId } = useParams();
+  const { taskId } = useParams();
 
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const pendingLogs = useRef<LogEntry[]>([]);
@@ -32,11 +31,11 @@ export default function MachineLogs() {
   useEffect(() => {
     let eventSource: EventSource | null = null;
     let updateInterval: NodeJS.Timeout;
-    if (machineId) {
+    if (taskId) {
       const streamUrl = `${
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (window as any).ENV.MACHINE_BUILDER_API_BASE_URL
-      }/machine-logs/${machineId}`;
+      }/app-logs/${taskId}`;
       eventSource = new EventSource(streamUrl);
 
       const flushPendingLogs = () => {
@@ -69,7 +68,7 @@ export default function MachineLogs() {
       eventSource?.close();
       clearInterval(updateInterval);
     };
-  }, [machineId, addLogs]);
+  }, [taskId, addLogs]);
 
   useEffect(() => {
     if (listRef.current && isScrolledToBottom.current) {
@@ -112,7 +111,7 @@ export default function MachineLogs() {
 
   return (
     <div className="sm:px-6 lg:px-8">
-      <h2 className="text-xl text-primary/90 mt-2">Machine Logs</h2>
+      <h2 className="text-xl text-primary/90 mt-2">App Logs</h2>
       <div className="h-screen pt-4 pb-8">
         <AutoSizer>
           {({ height, width }) => (

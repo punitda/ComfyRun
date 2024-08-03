@@ -20,7 +20,7 @@ import httpx
 from dotenv import load_dotenv
 from slugify import slugify
 
-from src.models import CreateMachinePayload, App
+from src.models import CreateAppPayload, App
 from src.node_map import local_node_map
 
 
@@ -64,12 +64,12 @@ ext_node_map: Dict = {}
 tasks = {}
 
 
-@app.post("/create-machine")
-async def create_machine(payload: CreateMachinePayload):
+@app.post("/app")
+async def create_app(payload: CreateAppPayload):
     task_id = str(uuid.uuid4())
-    task = deploy_machine(payload)
+    task = deploy_app(payload)
     tasks[task_id] = task
-    return {"status": "started", "machine_id": task_id}
+    return {"status": "started", "task_id": task_id}
 
 
 async def stream_logs(task_id: str):
@@ -84,8 +84,8 @@ async def stream_logs(task_id: str):
         del tasks[task_id]
 
 
-@app.get("/machine-logs/{task_id}")
-async def machine_logs(task_id: str):
+@app.get("/app-logs/{task_id}")
+async def app_logs(task_id: str):
     if tasks.get(task_id) is None:
         return {"message": "Task is already finished! :)"}
     return StreamingResponse(stream_logs(task_id), media_type="text/event-stream")
@@ -151,7 +151,7 @@ async def delete_app(app_id: str):
     return {"app_id": app_id, "deleted": True}
 
 
-async def deploy_machine(payload: CreateMachinePayload):
+async def deploy_app(payload: CreateAppPayload):
     folder_path = f"/app/builds/{payload.machine_name}"
     cp_process = await asyncio.create_subprocess_exec("cp", "-r", "/app/src/template", folder_path)
     await cp_process.wait()

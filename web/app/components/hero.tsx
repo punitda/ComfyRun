@@ -39,14 +39,8 @@ export default function Hero() {
           </p>
           <div className="mt-10 flex items-center gap-x-6">
             <Button asChild>
-              <Link to="/create-machine">Get started</Link>
+              <Link to="/create-app">Get started</Link>
             </Button>
-            <a
-              href="#"
-              className="text-sm font-semibold leading-6 text-gray-900"
-            >
-              Learn more <span aria-hidden="true">→</span>
-            </a>
           </div>
         </div>
         <div className="mx-auto mt-16 flex max-w-2xl sm:mt-24 lg:ml-10 lg:mr-0 lg:mt-0 lg:max-w-none lg:flex-none xl:ml-32">

@@ -1,12 +1,12 @@
 import {
-  CreateMachineRequestBody,
+  CreateAppRequestBody,
   OutputCustomNodesJson,
   OutputModel,
 } from "~/lib/types";
 
 export function generateCreateMachineRequestBody(
   formData: FormData
-): CreateMachineRequestBody {
+): CreateAppRequestBody {
   const custom_nodes = JSON.parse(
     formData.get("custom_nodes") as string
   ) as OutputCustomNodesJson;
