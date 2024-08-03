@@ -1,5 +1,10 @@
 import { json, LoaderFunctionArgs, redirect } from "@remix-run/node";
-import { Link, useLoaderData, useRevalidator } from "@remix-run/react";
+import {
+  Link,
+  useFetcher,
+  useLoaderData,
+  useRevalidator,
+} from "@remix-run/react";
 import { APIResponse, App } from "~/lib/types";
 import { requireAuth } from "~/server/auth";
 
@@ -15,6 +20,47 @@ import {
 import { formatRelativeTime } from "~/lib/utils";
 
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
+
+import { DELETE_APP_KEY } from "~/lib/constants";
+import { useEffect } from "react";
+import { useToast } from "~/components/ui/use-toast";
+
+export async function action({ request }: LoaderFunctionArgs) {
+  const formData = await request.formData();
+  const actionType = formData.get("actionType");
+  const appId = formData.get("appId");
+
+  const url = `${process.env.MACHINE_BUILDER_API_BASE_URL}/apps/${appId}`;
+
+  if (actionType === "delete") {
+    try {
+      const response = await fetch(url, {
+        method: "DELETE",
+        headers: {
+          X_API_KEY: process.env.MACHINE_BUILDER_API_KEY!,
+        },
+      });
+      const data = await response.json();
+      console.log("data", data);
+      if (!response.ok)
+        return json<APIResponse<App[]>>(
+          { error: "Unable to delete app", result: "error" },
+          { status: 400 }
+        );
+
+      return json<APIResponse<string>>(
+        { data: data["app_id"], result: "success" },
+        { status: 200 }
+      );
+    } catch (error) {
+      console.error("Delete app API error", error);
+      return json<APIResponse<App[]>>(
+        { error: "Unable to delete app", result: "error" },
+        { status: 400 }
+      );
+    }
+  }
+}
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const data = await requireAuth(args);
@@ -100,6 +146,7 @@ interface AppsLayoutProps {
 }
 
 function AppsLayout({ apps }: AppsLayoutProps) {
+  const deleteFetcher = useDeleteFetcherAction();
   return (
     <div>
       <div className="sm:flex sm:items-center">
@@ -196,18 +243,39 @@ function AppsLayout({ apps }: AppsLayoutProps) {
                   </td>
 
                   <td className="py-2 pl-0 pr-4 text-right sm:table-cell sm:pr-6 lg:pr-8">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <span className="sr-only">Open menu</span>
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem>Delete</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    {app.state === "deployed" ? (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <span className="sr-only">Open menu</span>
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuItem asChild>
+                            <deleteFetcher.Form method="post">
+                              <input
+                                type="hidden"
+                                name="actionType"
+                                value="delete"
+                              />
+                              <input
+                                type="hidden"
+                                name="appId"
+                                value={app.app_id}
+                              />
+                              <button
+                                type="submit"
+                                className="w-full text-left"
+                              >
+                                Delete
+                              </button>
+                            </deleteFetcher.Form>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    ) : null}
                   </td>
                 </tr>
               );
@@ -235,4 +303,45 @@ function ErrorLayout() {
       </div>
     </div>
   );
+}
+
+function useDeleteFetcherAction() {
+  const deleteFetcher = useFetcher<typeof action>({ key: DELETE_APP_KEY });
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (deleteFetcher.state === "submitting") {
+      toast({
+        title: "Deleting app",
+      });
+      return;
+    }
+    if (
+      deleteFetcher.state === "idle" &&
+      deleteFetcher.data &&
+      deleteFetcher.data.result === "error"
+    ) {
+      toast({
+        variant: "destructive",
+        title: "Error deleting app",
+        description: deleteFetcher.data.error,
+      });
+      return;
+    }
+
+    if (
+      deleteFetcher.state === "idle" &&
+      deleteFetcher.data &&
+      deleteFetcher.data.result === "success"
+    ) {
+      toast({
+        variant: "success",
+        title: "App deleted",
+      });
+      return;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deleteFetcher]);
+
+  return deleteFetcher;
 }
