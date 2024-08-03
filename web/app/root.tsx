@@ -1,6 +1,7 @@
 import { LoaderFunctionArgs } from "@remix-run/node";
 import {
   json,
+  Link,
   Links,
   Meta,
   Outlet,
@@ -58,10 +59,13 @@ function App() {
   return (
     <div className="flex flex-col">
       {!isAuthPage ? (
-        <nav className="p-4">
+        <nav className="p-4 min-h-16">
           <div className="container mx-auto flex justify-between items-center">
             <div className="flex items-center space-x-4 ml-auto">
               <SignedIn>
+                <Link to="/apps" hidden={location.pathname === "/apps"}>
+                  Apps
+                </Link>
                 <UserButton />
               </SignedIn>
             </div>

@@ -84,3 +84,21 @@ export type LOGGED_OUT = typeof LOGGED_OUT;
 
 export const EMAIL_NOT_ALLOWED = "EMAIL_NOT_ALLOWED" as const;
 export type EMAIL_NOT_ALLOWED = typeof EMAIL_NOT_ALLOWED;
+
+export interface App {
+  app_id: string;
+  description: string;
+  state: string;
+  tasks: string;
+  created_at: string;
+  stopped_at: string | null;
+}
+
+export interface TimeInterval {
+  label: Intl.RelativeTimeFormatUnit;
+  seconds: number;
+}
+
+export type APIResponse<T> =
+  | { result: "success"; data: T }
+  | { result: "error"; error: string };
