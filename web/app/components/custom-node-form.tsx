@@ -25,6 +25,7 @@ import { useFetcher } from "@remix-run/react";
 
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import { action } from "~/routes/upload-workflow-file/route";
+import { useToast } from "./ui/use-toast";
 
 const UPLOAD_WF_FETCHER_KEY = "upload-workflow-file";
 
@@ -45,6 +46,19 @@ export default function CustomNodeForm({
   const uploadWFFetcher = useFetcher<typeof action>({
     key: UPLOAD_WF_FETCHER_KEY,
   });
+
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (uploadWFFetcher.data?.result === "error") {
+      toast({
+        variant: "destructive",
+        title: uploadWFFetcher.data.error,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [uploadWFFetcher.data]);
+
   return (
     <div>
       <div className="px-4 py-6 sm:p-8">
@@ -81,7 +95,10 @@ export default function CustomNodeForm({
         <Button
           onClick={onNextStep}
           disabled={
-            !uploadWFFetcher?.data?.nodes && selectedCustomNodes.length === 0
+            uploadWFFetcher.state !== "idle" ||
+            ((uploadWFFetcher.data?.result === "error" ||
+              !uploadWFFetcher.data?.data) &&
+              selectedCustomNodes.length === 0)
           }
         >
           Next
@@ -196,11 +213,15 @@ function UploadWorkflowFileForm({
   }
 
   useEffect(() => {
-    if (fetcher.data?.nodes?.length ?? 0 > 0) {
-      onNodesGeneratedFromWFFile(fetcher.data?.nodes ?? []);
+    if (
+      fetcher.data?.result === "success" &&
+      (fetcher.data.data.length ?? 0 > 0)
+    ) {
+      onNodesGeneratedFromWFFile(fetcher.data.data ?? []);
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetcher.data?.nodes]);
+  }, [fetcher.data]);
   return (
     <fetcher.Form
       action="/upload-workflow-file"
@@ -263,9 +284,11 @@ function UploadWorkflowFileForm({
           ) : null}
         </div>
       </div>
-      {fetcher.state == "idle" && fetcher?.data?.nodes ? (
+      {fetcher.state == "idle" &&
+      fetcher.data?.result === "success" &&
+      fetcher?.data?.data ? (
         <p className="text-sm mt-2">
-          <span className="font-semibold">{fetcher?.data?.nodes.length}</span>
+          <span className="font-semibold">{fetcher?.data?.data.length}</span>
           <span> nodes selected from the workflow file</span>
         </p>
       ) : null}
