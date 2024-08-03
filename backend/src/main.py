@@ -1,4 +1,4 @@
-from enum import Enum
+
 import asyncio
 import os
 import json
@@ -7,17 +7,20 @@ import uuid
 
 import logging
 from contextlib import asynccontextmanager
-from typing import Dict, List, Literal, Annotated, Optional
-from pydantic import BaseModel, HttpUrl
 
-from fastapi import FastAPI, File
+from typing import Dict, Annotated
+
+from fastapi import FastAPI, File, Header, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import StreamingResponse
 import httpx
 
+
 from dotenv import load_dotenv
 from slugify import slugify
+
+from src.models import CreateMachinePayload, App
 from src.node_map import local_node_map
 
 
@@ -61,53 +64,12 @@ ext_node_map: Dict = {}
 tasks = {}
 
 
-class CustomNode(BaseModel):
-    state: Literal["not-installed"]
-    hash: str
-
-
-class CustomNodes(BaseModel):
-    custom_nodes: Dict[HttpUrl, CustomNode]
-    unknown_nodes: List[str]
-
-
-class Model(BaseModel):
-    name: str
-    url: HttpUrl
-    path: str
-
-
-class Gpu(str, Enum):
-    ANY = "any"
-    T4 = "t4"
-    L4 = "l4"
-    A10G = "a10g"
-    A100SMALL = "a100-40gb"
-    A100BIG = "a100-80gb"
-    H100 = "h100"
-
-
-class CreateMachinePayload(BaseModel):
-    machine_name: str
-    gpu: Gpu
-    custom_nodes: CustomNodes
-    models: List[Model]
-    additional_dependencies: Optional[str] = None,
-
-
 @app.post("/create-machine")
 async def create_machine(payload: CreateMachinePayload):
     task_id = str(uuid.uuid4())
     task = deploy_machine(payload)
     tasks[task_id] = task
     return {"status": "started", "machine_id": task_id}
-
-
-@app.get("/machine-logs/{task_id}")
-async def machine_logs(task_id: str):
-    if tasks.get(task_id) is None:
-        return {"message": "Task is already finished! :)"}
-    return StreamingResponse(stream_logs(task_id), media_type="text/event-stream")
 
 
 async def stream_logs(task_id: str):
@@ -122,11 +84,52 @@ async def stream_logs(task_id: str):
         del tasks[task_id]
 
 
+@app.get("/machine-logs/{task_id}")
+async def machine_logs(task_id: str):
+    if tasks.get(task_id) is None:
+        return {"message": "Task is already finished! :)"}
+    return StreamingResponse(stream_logs(task_id), media_type="text/event-stream")
+
+
 @app.post("/generate-custom-nodes")
 async def generate_custom_nodes(workflow_file: Annotated[bytes, File()]):
     workflow = json.loads(workflow_file.decode("utf-8"))
     custom_nodes, _ = await extract_nodes_from_workflow(workflow)
     return custom_nodes
+
+
+def verify_api_key(api_key: Annotated[str, Header(alias="X_API_KEY")]):
+    if api_key != os.environ.get("X_API_KEY"):
+        raise HTTPException(status_code=403, detail="Invalid API Key")
+    return api_key
+
+
+@app.get("/apps", dependencies=[Depends(verify_api_key)])
+async def list_apps():
+    command = "modal app list --json"
+    process = await asyncio.create_subprocess_shell(
+        command,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE,
+        env={**os.environ,
+             "MODAL_TOKEN_ID": os.getenv("MODAL_TOKEN_ID"),
+             "MODAL_TOKEN_SECRET": os.getenv("MODAL_TOKEN_SECRET"),
+             "COLUMNS": "10000",
+             }
+    )
+    stdout, stderr = await process.communicate()
+
+    if process.returncode != 0:
+        raise HTTPException(
+            status_code=500, detail=f"Unable to find apps: {stderr.decode()}")
+
+    try:
+        data = json.loads(stdout.decode())
+        response = [App(**item).to_snake_case_dict() for item in data]
+        return response
+    except json.JSONDecodeError as exc:
+        raise HTTPException(
+            status_code=500, detail="Invalid response") from exc
 
 
 async def deploy_machine(payload: CreateMachinePayload):
