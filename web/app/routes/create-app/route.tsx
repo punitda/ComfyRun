@@ -16,9 +16,9 @@ import ModelsForm from "~/components/models-form";
 import GpuForm from "~/components/gpu-form";
 import { getCustomNodes, getModels } from "~/server/github";
 import { convertCustomNodesJson, convertModelsJson } from "~/lib/utils";
-import { CREATE_APP_FETCHER_KEY } from "../../lib/constants";
+import { CREATE_APP_FETCHER_KEY } from "~/lib/constants";
 import { useToast } from "~/components/ui/use-toast";
-import { generateCreateMachineRequestBody } from "../../server/utils";
+import { generateCreateMachineRequestBody } from "~/server/utils";
 
 import { requireAuth } from "~/server/auth";
 

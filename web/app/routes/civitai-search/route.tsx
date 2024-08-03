@@ -1,7 +1,7 @@
 import { json, useFetcher } from "@remix-run/react";
 import { useEffect, useState } from "react";
 import { useDebounce, cn } from "~/lib/utils";
-import { Model } from "../../lib/types";
+import { Model } from "~/lib/types";
 
 import {
   Command,

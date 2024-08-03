@@ -1,5 +1,5 @@
 import { ActionFunctionArgs, json } from "@remix-run/node";
-import { CustomNode } from "../../lib/types";
+import { CustomNode } from "~/lib/types";
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
