@@ -31,7 +31,7 @@ class Gpu(str, Enum):
     H100 = "h100"
 
 
-class CreateMachinePayload(BaseModel):
+class CreateAppPayload(BaseModel):
     machine_name: str
     gpu: Gpu
     custom_nodes: CustomNodes
