@@ -132,6 +132,25 @@ async def list_apps():
             status_code=500, detail="Invalid response") from exc
 
 
+@app.delete("/apps/{app_id}", dependencies=[Depends(verify_api_key)])
+async def delete_app(app_id: str):
+    process = await asyncio.create_subprocess_exec(
+        "modal", "app", "stop", app_id,
+        env={**os.environ,
+             "MODAL_TOKEN_ID": os.getenv("MODAL_TOKEN_ID"),
+             "MODAL_TOKEN_SECRET": os.getenv("MODAL_TOKEN_SECRET"),
+             "COLUMNS": "10000",
+             })
+
+    returncode = await process.wait()
+
+    if returncode != 0:
+        raise HTTPException(
+            status_code=500, detail=f"Unable to delete app: {app_id}")
+
+    return {"app_id": app_id, "deleted": True}
+
+
 async def deploy_machine(payload: CreateMachinePayload):
     folder_path = f"/app/builds/{payload.machine_name}"
     cp_process = await asyncio.create_subprocess_exec("cp", "-r", "/app/src/template", folder_path)
