@@ -17,12 +17,13 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
+import { ToggleGroup, ToggleGroupItem } from "~/components/ui/toggle-group";
 import { formatRelativeTime } from "~/lib/utils";
 
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 
 import { DELETE_APP_KEY } from "~/lib/constants";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useToast } from "~/components/ui/use-toast";
 
 export async function action({ request }: LoaderFunctionArgs) {
@@ -147,6 +148,9 @@ interface AppsLayoutProps {
 
 function AppsLayout({ apps }: AppsLayoutProps) {
   const deleteFetcher = useDeleteFetcherAction();
+  const [appStateFilter, setAppStateFilter] = useState<string>("deployed");
+
+  const displayApps = apps.filter((app) => appStateFilter === app.state);
   return (
     <div>
       <div className="sm:flex sm:items-center">
@@ -166,6 +170,33 @@ function AppsLayout({ apps }: AppsLayoutProps) {
         </div>
       </div>
       <div className="bg-white py-10">
+        <div className="flex justify-between">
+          <ToggleGroup
+            variant="outline"
+            size="sm"
+            type="single"
+            defaultValue="deployed"
+            className="ml-auto"
+            onValueChange={(value) => {
+              setAppStateFilter(value);
+            }}
+          >
+            <ToggleGroupItem
+              value="deployed"
+              aria-label="Toggle bold"
+              key="deployed"
+            >
+              <p>Deployed</p>
+            </ToggleGroupItem>
+            <ToggleGroupItem
+              value="stopped"
+              aria-label="Toggle italic"
+              key="stopped"
+            >
+              <p>Stopped</p>
+            </ToggleGroupItem>
+          </ToggleGroup>
+        </div>
         <table className="mt-6 w-full whitespace-nowrap text-left rounded-md">
           <colgroup>
             <col className="w-full sm:w-4/12" />
@@ -203,7 +234,7 @@ function AppsLayout({ apps }: AppsLayoutProps) {
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {apps.map((app) => {
+            {displayApps.map((app) => {
               const relativeTime = formatRelativeTime(app.created_at);
               return (
                 <tr key={app.app_id}>
@@ -282,6 +313,11 @@ function AppsLayout({ apps }: AppsLayoutProps) {
             })}
           </tbody>
         </table>
+        {displayApps.length === 0 ? (
+          <div className="flex items-center mt-32 justify-center text-primary">
+            {`No ${appStateFilter} apps`}
+          </div>
+        ) : null}
       </div>
     </div>
   );
