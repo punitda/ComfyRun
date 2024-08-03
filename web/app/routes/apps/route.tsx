@@ -1,8 +1,10 @@
 import { json, LoaderFunctionArgs, redirect } from "@remix-run/node";
-import { requireAuth } from "~/server/auth";
-import { App } from "~/lib/types";
 import { Link, useLoaderData } from "@remix-run/react";
+import { APIResponse, App } from "~/lib/types";
+import { requireAuth } from "~/server/auth";
 
+import { MoreHorizontal, PlusIcon } from "lucide-react";
+import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,8 +12,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { Button } from "~/components/ui/button";
-import { MoreHorizontal, PlusIcon } from "lucide-react";
 import { formatRelativeTime } from "~/lib/utils";
 
 export const loader = async (args: LoaderFunctionArgs) => {
@@ -20,16 +20,40 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return redirect("/sign-in");
   }
 
-  return json({ apps }, { status: 200 });
+  const url = `${process.env.MACHINE_BUILDER_API_BASE_URL}/apps`;
+
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        X_API_KEY: process.env.MACHINE_BUILDER_API_KEY!,
+      },
+    });
+    const apps = (await response.json()) as App[];
+    return json<APIResponse<App[]>>(
+      { data: apps, result: "success" },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Get apps API error", error);
+    return json<APIResponse<App[]>>(
+      { error: "Unable to fetch list of apps", result: "error" },
+      { status: 400 }
+    );
+  }
 };
 
 export default function AppsPage() {
-  const { apps } = useLoaderData<typeof loader>();
-  return (
-    <div className="lg:px-32 px-16 mt-32">
-      {apps.length === 0 ? <NoAppsLayout /> : <AppsLayout apps={apps} />}
-    </div>
-  );
+  const data = useLoaderData<typeof loader>();
+  if (data.result === "success") {
+    const apps = data.data;
+    return (
+      <div className="lg:px-32 px-16 mt-32">
+        {apps?.length === 0 ? <NoAppsLayout /> : <AppsLayout apps={apps} />}
+      </div>
+    );
+  }
+  return <div>Unable to fetch apps</div>;
 }
 
 function NoAppsLayout() {
@@ -187,54 +211,3 @@ function AppsLayout({ apps }: AppsLayoutProps) {
     </div>
   );
 }
-
-const apps: App[] = [
-  {
-    app_id: "ap-V47fsI4kz1NyYn3xBKz31K",
-    description: "upscalermachine",
-    state: "deployed",
-    tasks: "0",
-    created_at: "2024-07-31 17:56:39+05:30",
-    stopped_at: null,
-  },
-  {
-    app_id: "ap-uuNuRZpkhaF8Y5gV5Fu6W5",
-    description: "upscaler-machine",
-    state: "deployed",
-    tasks: "0",
-    created_at: "2024-07-25 15:58:32+05:30",
-    stopped_at: null,
-  },
-  {
-    app_id: "ap-uEwZw6Dmr9ZLsAc778n6CA",
-    description: "instantid-workflow",
-    state: "deployed",
-    tasks: "0",
-    created_at: "2024-07-05 16:22:57+05:30",
-    stopped_at: null,
-  },
-  {
-    app_id: "ap-RB6wFDmpvOrOdqZLVFyDRz",
-    description: "ipadapter-workflow",
-    state: "deployed",
-    tasks: "0",
-    created_at: "2024-07-03 16:41:28+05:30",
-    stopped_at: null,
-  },
-  {
-    app_id: "ap-H9pWzs5PivoGyuFkoH3E6j",
-    description: "upscaling-workflow",
-    state: "stopped",
-    tasks: "0",
-    created_at: "2024-07-30 18:38:02+05:30",
-    stopped_at: "2024-08-02 12:09:05+05:30",
-  },
-  {
-    app_id: "ap-L0qDTQwXdKVYcUXhoKpRdW",
-    description: "ipadapterlearning",
-    state: "stopped",
-    tasks: "0",
-    created_at: "2024-07-28 17:34:56+05:30",
-    stopped_at: "2024-08-02 11:55:18+05:30",
-  },
-];
