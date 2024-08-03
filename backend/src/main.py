@@ -125,7 +125,7 @@ async def list_apps():
 
     try:
         data = json.loads(stdout.decode())
-        response = [App(**item).to_snake_case_dict() for item in data]
+        response = [App(**item).model_dump() for item in data]
         return response
     except json.JSONDecodeError as exc:
         raise HTTPException(

@@ -2,6 +2,7 @@
 from enum import Enum
 from typing import Dict, List, Literal, Optional
 from pydantic import BaseModel, HttpUrl, Field
+from pydantic.alias_generators import to_snake
 
 
 class CustomNode(BaseModel):
@@ -47,14 +48,5 @@ class App(BaseModel):
     stopped_at: Optional[str] = Field(alias="Stopped at")
 
     class Config:
+        alias_generator = to_snake
         allow_population_by_field_name = True
-
-    def to_snake_case_dict(self):
-        return {
-            "app_id": self.app_id,
-            "description": self.description,
-            "state": self.state,
-            "tasks": self.tasks,
-            "created_at": self.created_at,
-            "stopped_at": self.stopped_at
-        }
