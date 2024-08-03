@@ -269,8 +269,10 @@ function AppsLayout({ apps }: AppsLayoutProps) {
                       <div
                         className={`
                 ${
-                  app.state === "deployed"
+                  app.tasks === "1"
                     ? "text-green-400 bg-green-400/10"
+                    : app.state === "deployed"
+                    ? "text-orange-400 bg-orange-400/10"
                     : "text-rose-400 bg-rose-400/10"
                 }
                 flex-none rounded-full p-1`}
