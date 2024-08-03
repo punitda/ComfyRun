@@ -1,11 +1,11 @@
-import { json, LoaderFunctionArgs, redirect } from "@remix-run/node";
+import { LoaderFunctionArgs, redirect } from "@remix-run/node";
 import {
   Link,
   useFetcher,
   useLoaderData,
   useRevalidator,
 } from "@remix-run/react";
-import { APIResponse, App } from "~/lib/types";
+import { App } from "~/lib/types";
 import { requireAuth } from "~/server/auth";
 
 import { MoreHorizontal, PlusIcon } from "lucide-react";
@@ -36,6 +36,7 @@ import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
 import { useToast } from "~/components/ui/use-toast";
 import { DELETE_APP_KEY } from "~/lib/constants";
+import { sendErrorResponse, sendSuccessResponse } from "~/server/utils";
 
 export async function action({ request }: LoaderFunctionArgs) {
   const formData = await request.formData();
@@ -52,24 +53,20 @@ export async function action({ request }: LoaderFunctionArgs) {
           X_API_KEY: process.env.MACHINE_BUILDER_API_KEY!,
         },
       });
-      const data = await response.json();
-      console.log("data", data);
-      if (!response.ok)
-        return json<APIResponse<App[]>>(
-          { error: "Unable to delete app", result: "error" },
-          { status: 400 }
-        );
 
-      return json<APIResponse<string>>(
-        { data: data["app_id"], result: "success" },
-        { status: 200 }
-      );
+      if (!response.ok) {
+        return sendErrorResponse<App[]>(
+          "Unable to delete app",
+          response.status
+        );
+      }
+
+      const data = await response.json();
+
+      return sendSuccessResponse<string>(data["app_id"], 200);
     } catch (error) {
       console.error("Delete app API error", error);
-      return json<APIResponse<App[]>>(
-        { error: "Unable to delete app", result: "error" },
-        { status: 400 }
-      );
+      return sendErrorResponse<App[]>("Unable to delete app", 500);
     }
   }
 }
@@ -89,17 +86,19 @@ export const loader = async (args: LoaderFunctionArgs) => {
         X_API_KEY: process.env.MACHINE_BUILDER_API_KEY!,
       },
     });
+
+    if (!response.ok) {
+      return sendErrorResponse<App[]>(
+        "Unable to fetch list of apps",
+        response.status
+      );
+    }
+
     const apps = (await response.json()) as App[];
-    return json<APIResponse<App[]>>(
-      { data: apps, result: "success" },
-      { status: 200 }
-    );
+    return sendSuccessResponse<App[]>(apps, 200);
   } catch (error) {
     console.error("Get apps API error", error);
-    return json<APIResponse<App[]>>(
-      { error: "Unable to fetch list of apps", result: "error" },
-      { status: 400 }
-    );
+    return sendErrorResponse<App[]>("Unable to fetch list of apps", 500);
   }
 };
 
@@ -270,8 +269,10 @@ function AppsLayout({ apps }: AppsLayoutProps) {
                       <div
                         className={`
                 ${
-                  app.state === "deployed"
+                  app.tasks === "1"
                     ? "text-green-400 bg-green-400/10"
+                    : app.state === "deployed"
+                    ? "text-orange-400 bg-orange-400/10"
                     : "text-rose-400 bg-rose-400/10"
                 }
                 flex-none rounded-full p-1`}

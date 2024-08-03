@@ -9,6 +9,7 @@ import {
   ScrollRestoration,
   useLoaderData,
   useLocation,
+  useNavigation,
 } from "@remix-run/react";
 import "./tailwind.css";
 
@@ -16,6 +17,7 @@ import { Toaster } from "~/components/ui/toaster";
 
 import { ClerkApp, SignedIn, UserButton } from "@clerk/remix";
 import { rootAuthLoader } from "@clerk/remix/ssr.server";
+import LoadingIndicator from "./components/loading-indicator";
 
 export async function loader(args: LoaderFunctionArgs) {
   return rootAuthLoader(args, () => {
@@ -53,6 +55,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 function App() {
+  const navigation = useNavigation();
   const location = useLocation();
   const isAuthPage = ["/sign-in", "/sign-up"].includes(location.pathname);
 
@@ -73,6 +76,7 @@ function App() {
         </nav>
       ) : null}
       <main className="flex-grow">
+        {navigation.state === "loading" ? <LoadingIndicator /> : null}
         <Outlet />
       </main>
     </div>
