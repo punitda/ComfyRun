@@ -11,6 +11,16 @@ import { requireAuth } from "~/server/auth";
 import { MoreHorizontal, PlusIcon } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from "~/components/ui/dialog";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -18,13 +28,14 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { ToggleGroup, ToggleGroupItem } from "~/components/ui/toggle-group";
+
 import { formatRelativeTime } from "~/lib/utils";
 
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 
-import { DELETE_APP_KEY } from "~/lib/constants";
 import { useEffect, useState } from "react";
 import { useToast } from "~/components/ui/use-toast";
+import { DELETE_APP_KEY } from "~/lib/constants";
 
 export async function action({ request }: LoaderFunctionArgs) {
   const formData = await request.formData();
@@ -275,16 +286,32 @@ function AppsLayout({ apps }: AppsLayoutProps) {
 
                   <td className="py-2 pl-0 pr-4 text-right sm:table-cell sm:pr-6 lg:pr-8">
                     {app.state === "deployed" ? (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem asChild>
+                      <Dialog>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                              <span className="sr-only">Open menu</span>
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DialogTrigger asChild>
+                              <DropdownMenuItem>Delete</DropdownMenuItem>
+                            </DialogTrigger>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>
+                              Are you sure you want to delete the app?
+                            </DialogTitle>
+                            <DialogDescription>
+                              This action cannot be undone. Are you sure you
+                              want to permanently delete this app?
+                            </DialogDescription>
+                          </DialogHeader>
+                          <DialogFooter>
                             <deleteFetcher.Form method="post">
                               <input
                                 type="hidden"
@@ -296,16 +323,13 @@ function AppsLayout({ apps }: AppsLayoutProps) {
                                 name="appId"
                                 value={app.app_id}
                               />
-                              <button
-                                type="submit"
-                                className="w-full text-left"
-                              >
-                                Delete
-                              </button>
+                              <DialogClose asChild>
+                                <Button type="submit">Delete</Button>
+                              </DialogClose>
                             </deleteFetcher.Form>
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
                     ) : null}
                   </td>
                 </tr>
