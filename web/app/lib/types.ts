@@ -98,3 +98,7 @@ export interface TimeInterval {
   label: Intl.RelativeTimeFormatUnit;
   seconds: number;
 }
+
+export type APIResponse<T> =
+  | { result: "success"; data: T }
+  | { result: "error"; error: string };
