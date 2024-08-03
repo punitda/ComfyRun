@@ -89,8 +89,8 @@ export default function ModelsForm({
               </PopoverTrigger>
               <PopoverContent className="w-96">
                 <p className="text-primary/90 text-sm mt-1">
-                  Models are shared between machines. If you&#39;ve already
-                  downloaded all the models you need during the previous machine
+                  Models are shared between apps. If you&#39;ve already
+                  downloaded all the models you need during the previous app
                   builds you can skip this step :)
                 </p>
               </PopoverContent>

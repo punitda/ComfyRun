@@ -1,8 +1,8 @@
 import { json, redirect, useFetcher, useLoaderData } from "@remix-run/react";
 
 import {
-  CreateMachineErrorResponseBody,
-  CreateMachineResponseBody,
+  CreateAppErrorResponseBody,
+  CreateAppSuccessResponseBody,
   CustomNode,
   FormStep,
   FormStepStatus,
@@ -16,7 +16,7 @@ import ModelsForm from "~/components/models-form";
 import GpuForm from "~/components/gpu-form";
 import { getCustomNodes, getModels } from "~/server/github";
 import { convertCustomNodesJson, convertModelsJson } from "~/lib/utils";
-import { CREATE_MACHINE_FETCHER_KEY } from "../../lib/constants";
+import { CREATE_APP_FETCHER_KEY } from "../../lib/constants";
 import { useToast } from "~/components/ui/use-toast";
 import { generateCreateMachineRequestBody } from "../../server/utils";
 
@@ -33,7 +33,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const requestBody = generateCreateMachineRequestBody(formData);
 
   try {
-    const url = `${process.env.MACHINE_BUILDER_API_BASE_URL}/create-machine`;
+    const url = `${process.env.MACHINE_BUILDER_API_BASE_URL}/app`;
     const response = await fetch(url, {
       method: "POST",
       headers: {
@@ -43,18 +43,18 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     });
 
     if (!response.ok) {
-      return json<CreateMachineErrorResponseBody>(
-        { error: "Unable to create machine" },
+      return json<CreateAppErrorResponseBody>(
+        { error: "Unable to create app" },
         { status: response.status }
       );
     }
 
-    const { machine_id } = (await response.json()) as CreateMachineResponseBody;
-    return redirect(`/machine-logs/${machine_id}`);
+    const { task_id } = (await response.json()) as CreateAppSuccessResponseBody;
+    return redirect(`/app-logs/${task_id}`);
   } catch (error) {
-    console.error("create-machine-error", error);
-    return json<CreateMachineErrorResponseBody>(
-      { error: "Unable to create machine" },
+    console.error("create-app API error", error);
+    return json<CreateAppErrorResponseBody>(
+      { error: "Unable to create app" },
       { status: 400 }
     );
   }
@@ -78,9 +78,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
   return json({ custom_nodes, models }, { status: 200 });
 };
 
-export default function Index() {
-  const createMachineFetcher = useFetcher<typeof action>({
-    key: CREATE_MACHINE_FETCHER_KEY,
+export default function CreateAppPage() {
+  const createAppFetcher = useFetcher<typeof action>({
+    key: CREATE_APP_FETCHER_KEY,
   });
   const { custom_nodes, models } = useLoaderData<typeof loader>();
 
@@ -138,22 +138,22 @@ export default function Index() {
   }
 
   useEffect(() => {
-    if (!createMachineFetcher.data) return;
-    if ("error" in createMachineFetcher.data) {
+    if (!createAppFetcher.data) return;
+    if ("error" in createAppFetcher.data) {
       toast({
         variant: "destructive",
         title: "Uh oh! Something went wrong",
-        description: createMachineFetcher.data.error,
+        description: createAppFetcher.data.error,
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [createMachineFetcher.data]);
+  }, [createAppFetcher.data]);
 
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col">
       <div className="container mx-auto sm:px-6 lg:px-32 my-32">
         <div className="px-4 py-5 sm:p-6">
-          <h2 className="text-2xl">Create Machine</h2>
+          <h2 className="text-2xl">Create App</h2>
           <div className="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2 my-6">
             <FormNav steps={steps} />
             {currentStep?.name == "Nodes" ? (
