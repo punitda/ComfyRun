@@ -234,7 +234,7 @@ function AppsLayout({ apps }: AppsLayoutProps) {
                 scope="col"
                 className="hidden py-2 pl-0 pr-8 font-semibold md:table-cell lg:pr-20"
               >
-                Deployed at
+                {appStateFilter === "deployed" ? "Deployed at" : "Stopped at"}
               </th>
               <th
                 scope="col"
@@ -246,7 +246,11 @@ function AppsLayout({ apps }: AppsLayoutProps) {
           </thead>
           <tbody className="divide-y divide-border">
             {displayApps.map((app) => {
-              const relativeTime = formatRelativeTime(app.created_at);
+              const relativeTime = formatRelativeTime(
+                appStateFilter === "deployed"
+                  ? app.created_at
+                  : app.stopped_at ?? app.created_at
+              );
               return (
                 <tr key={app.app_id}>
                   <td className="py-4 pl-4 pr-8 sm:pl-6 lg:pl-8">
