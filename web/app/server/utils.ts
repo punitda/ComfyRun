@@ -1,7 +1,9 @@
+import { json } from "@remix-run/react";
 import {
   CreateAppRequestBody,
   OutputCustomNodesJson,
   OutputModel,
+  APIResponse,
 } from "~/lib/types";
 
 export function generateCreateMachineRequestBody(
@@ -23,4 +25,27 @@ export function generateCreateMachineRequestBody(
     models,
     additional_dependencies,
   };
+}
+
+export function sendErrorResponse<T>(
+  error: string,
+  status: number | undefined
+) {
+  return json<APIResponse<T>>(
+    {
+      result: "error",
+      error: error,
+    },
+    { status: status }
+  );
+}
+
+export function sendSuccessResponse<T>(data: T, status: number | undefined) {
+  return json<APIResponse<T>>(
+    {
+      result: "success",
+      data,
+    },
+    { status: status }
+  );
 }
