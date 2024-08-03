@@ -1,5 +1,5 @@
 import { json, LoaderFunctionArgs, redirect } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
+import { Link, useLoaderData, useRevalidator } from "@remix-run/react";
 import { APIResponse, App } from "~/lib/types";
 import { requireAuth } from "~/server/auth";
 
@@ -13,6 +13,8 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { formatRelativeTime } from "~/lib/utils";
+
+import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const data = await requireAuth(args);
@@ -45,6 +47,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
 export default function AppsPage() {
   const data = useLoaderData<typeof loader>();
+
   if (data.result === "success") {
     const apps = data.data;
     return (
@@ -53,7 +56,11 @@ export default function AppsPage() {
       </div>
     );
   }
-  return <div>Unable to fetch apps</div>;
+
+  if (data.result === "error") {
+    return <ErrorLayout />;
+  }
+  return null;
 }
 
 function NoAppsLayout() {
@@ -207,6 +214,24 @@ function AppsLayout({ apps }: AppsLayoutProps) {
             })}
           </tbody>
         </table>
+      </div>
+    </div>
+  );
+}
+
+function ErrorLayout() {
+  const revalidator = useRevalidator();
+  return (
+    <div className="lg:px-32 px-16 mt-32 flex flex-col items-center">
+      <ExclamationTriangleIcon className="size-6 text-destructive" />
+      <h3 className="mt-2 text-sm font-semibold text-primary">
+        Uh-oh! Something went wrong
+      </h3>
+      <p className="mt-1 text-sm text-primary/90">
+        There was a problem with your request.
+      </p>
+      <div className="mt-6">
+        <Button onClick={() => revalidator.revalidate()}>Try again</Button>
       </div>
     </div>
   );
