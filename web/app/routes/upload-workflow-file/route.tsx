@@ -1,5 +1,6 @@
-import { ActionFunctionArgs, json } from "@remix-run/node";
+import { ActionFunctionArgs } from "@remix-run/node";
 import { CustomNode } from "~/lib/types";
+import { sendErrorResponse, sendSuccessResponse } from "~/server/utils";
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
@@ -11,9 +12,9 @@ export async function action({ request }: ActionFunctionArgs) {
       body: formData,
     });
     if (!response.ok) {
-      return json(
-        { nodes: [], error: "Unable to fetch custom nodes from workflow file" },
-        { status: 400 }
+      return sendErrorResponse<CustomNode[]>(
+        "Unable to fetch custom nodes from workflow file",
+        response.status
       );
     }
 
@@ -23,12 +24,20 @@ export async function action({ request }: ActionFunctionArgs) {
         reference: custom_node,
       })
     );
-    return json({ nodes }, { status: 200 });
+
+    if (nodes.length === 0) {
+      return sendErrorResponse<CustomNode[]>(
+        "No custom nodes found in the uploaded workflow file",
+        400
+      );
+    }
+
+    return sendSuccessResponse<CustomNode[]>(nodes, 200);
   } catch (error) {
     console.error("upload-workflow-file API error", error);
-    return json(
-      { nodes: [], error: "Unable to fetch custom nodes from workflow file" },
-      { status: 400 }
+    return sendErrorResponse<CustomNode[]>(
+      "Unable to fetch custom nodes from workflow file",
+      500
     );
   }
 }
