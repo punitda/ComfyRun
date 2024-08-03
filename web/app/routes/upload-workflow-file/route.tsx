@@ -10,6 +10,13 @@ export async function action({ request }: ActionFunctionArgs) {
       method: "POST",
       body: formData,
     });
+    if (!response.ok) {
+      return json(
+        { nodes: [], error: "Unable to fetch custom nodes from workflow file" },
+        { status: 400 }
+      );
+    }
+
     const custom_nodes = await response.json();
     const nodes: CustomNode[] = custom_nodes.map(
       (custom_node: string): CustomNode => ({
@@ -18,7 +25,7 @@ export async function action({ request }: ActionFunctionArgs) {
     );
     return json({ nodes }, { status: 200 });
   } catch (error) {
-    console.error("upload-workflow-file-api-error", error);
+    console.error("upload-workflow-file API error", error);
     return json(
       { nodes: [], error: "Unable to fetch custom nodes from workflow file" },
       { status: 400 }
