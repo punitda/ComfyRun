@@ -157,7 +157,6 @@ interface AppsLayoutProps {
 }
 
 function AppsLayout({ apps }: AppsLayoutProps) {
-  const deleteFetcher = useDeleteFetcherAction();
   const [appStateFilter, setAppStateFilter] = useState<string>("deployed");
 
   const displayApps = apps.filter((app) => appStateFilter === app.state);
@@ -291,50 +290,7 @@ function AppsLayout({ apps }: AppsLayoutProps) {
 
                   <td className="py-2 pl-0 pr-4 text-right sm:table-cell sm:pr-6 lg:pr-8">
                     {app.state === "deployed" ? (
-                      <Dialog>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                              <span className="sr-only">Open menu</span>
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DialogTrigger asChild>
-                              <DropdownMenuItem>Delete</DropdownMenuItem>
-                            </DialogTrigger>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>
-                              Are you sure you want to delete the app?
-                            </DialogTitle>
-                            <DialogDescription>
-                              This action cannot be undone. Are you sure you
-                              want to permanently delete this app?
-                            </DialogDescription>
-                          </DialogHeader>
-                          <DialogFooter>
-                            <deleteFetcher.Form method="post">
-                              <input
-                                type="hidden"
-                                name="actionType"
-                                value="delete"
-                              />
-                              <input
-                                type="hidden"
-                                name="appId"
-                                value={app.app_id}
-                              />
-                              <DialogClose asChild>
-                                <Button type="submit">Delete</Button>
-                              </DialogClose>
-                            </deleteFetcher.Form>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
+                      <DropdownActionMenu app={app} />
                     ) : null}
                   </td>
                 </tr>
@@ -349,6 +305,52 @@ function AppsLayout({ apps }: AppsLayoutProps) {
         ) : null}
       </div>
     </div>
+  );
+}
+
+interface DropdownActionMenuProps {
+  app: App;
+}
+function DropdownActionMenu({ app }: DropdownActionMenuProps) {
+  const deleteFetcher = useDeleteFetcherAction();
+  return (
+    <Dialog>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="h-8 w-8 p-0">
+            <span className="sr-only">Open menu</span>
+            <MoreHorizontal className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DialogTrigger asChild>
+            <DropdownMenuItem>Delete</DropdownMenuItem>
+          </DialogTrigger>
+          <DropdownMenuItem>
+            <Link to={`/create-app?rebuild=${app.description}`}>Rebuild</Link>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Are you sure you want to delete the app?</DialogTitle>
+          <DialogDescription>
+            This action cannot be undone. Are you sure you want to permanently
+            delete this app?
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <deleteFetcher.Form method="post">
+            <input type="hidden" name="actionType" value="delete" />
+            <input type="hidden" name="appId" value={app.app_id} />
+            <DialogClose asChild>
+              <Button type="submit">Delete</Button>
+            </DialogClose>
+          </deleteFetcher.Form>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 

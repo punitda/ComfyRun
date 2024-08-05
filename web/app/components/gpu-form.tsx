@@ -38,12 +38,14 @@ const packageNamesRegex = new RegExp(
 const packageNamesErrorMsg =
   "Please provide values in comma separated format as suggested in examples";
 export interface GpuFormProps {
+  machineName?: string;
   customNodesJson: OutputCustomNodesJson;
   modelsJson: OutputModel[];
   onBackStep: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 }
 
 export default function GpuForm({
+  machineName,
   onBackStep,
   customNodesJson,
   modelsJson,
@@ -69,6 +71,9 @@ export default function GpuForm({
                 id="machine-name"
                 name="machine_name"
                 placeholder="Machine name"
+                defaultValue={machineName}
+                disabled={!!machineName}
+                readOnly={!!machineName}
                 onChange={(e) => {
                   if (machineNameRegex.test(e.target.value)) {
                     setMachineNameError(null);

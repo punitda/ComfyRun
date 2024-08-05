@@ -1,4 +1,10 @@
-import { json, redirect, useFetcher, useLoaderData } from "@remix-run/react";
+import {
+  json,
+  redirect,
+  useFetcher,
+  useLoaderData,
+  useSearchParams,
+} from "@remix-run/react";
 
 import {
   CreateAppErrorResponseBody,
@@ -79,6 +85,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 };
 
 export default function CreateAppPage() {
+  const [searchParams, _] = useSearchParams();
   const createAppFetcher = useFetcher<typeof action>({
     key: CREATE_APP_FETCHER_KEY,
   });
@@ -188,6 +195,7 @@ export default function CreateAppPage() {
             {currentStep?.name == "GPU" ? (
               <>
                 <GpuForm
+                  machineName={searchParams.get("rebuild") ?? ""}
                   customNodesJson={convertCustomNodesJson(
                     selectedCustomNodes.concat(selectedCustomNodesFromWFFile)
                   )}
