@@ -34,7 +34,7 @@ export default function MachineLogs() {
     if (taskId) {
       const streamUrl = `${
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (window as any).ENV.MACHINE_BUILDER_API_BASE_URL
+        (window as any).ENV.APP_BUILDER_API_BASE_URL
       }/app-logs/${taskId}`;
       eventSource = new EventSource(streamUrl);
 

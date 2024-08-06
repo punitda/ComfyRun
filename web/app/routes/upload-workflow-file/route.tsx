@@ -4,7 +4,7 @@ import { sendErrorResponse, sendSuccessResponse } from "~/server/utils";
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
-  const url = `${process.env.MACHINE_BUILDER_API_BASE_URL}/generate-custom-nodes`;
+  const url = `${process.env.APP_BUILDER_API_BASE_URL}/generate-custom-nodes`;
 
   try {
     const response = await fetch(url, {

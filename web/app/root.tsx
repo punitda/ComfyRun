@@ -23,7 +23,7 @@ export async function loader(args: LoaderFunctionArgs) {
   return rootAuthLoader(args, () => {
     return json({
       ENV: {
-        MACHINE_BUILDER_API_BASE_URL: process.env.MACHINE_BUILDER_API_BASE_URL,
+        APP_BUILDER_API_BASE_URL: process.env.APP_BUILDER_API_BASE_URL,
       },
     });
   });
