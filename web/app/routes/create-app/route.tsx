@@ -39,7 +39,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const requestBody = generateCreateMachineRequestBody(formData);
 
   try {
-    const url = `${process.env.MACHINE_BUILDER_API_BASE_URL}/app`;
+    const url = `${process.env.APP_BUILDER_API_BASE_URL}/app`;
     const response = await fetch(url, {
       method: "POST",
       headers: {

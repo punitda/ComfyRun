@@ -48,10 +48,9 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-origins = [
-    "http://localhost:5173",
-    "https://punitd-modal-comfyui-deploy.fly.dev"
-]
+origins = [item.strip() for item in
+           os.environ.get('CORS_ALLOWED_ORIGINS', '').split(',')]
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,

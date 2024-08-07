@@ -43,14 +43,14 @@ export async function action({ request }: LoaderFunctionArgs) {
   const actionType = formData.get("actionType");
   const appId = formData.get("appId");
 
-  const url = `${process.env.MACHINE_BUILDER_API_BASE_URL}/apps/${appId}`;
+  const url = `${process.env.APP_BUILDER_API_BASE_URL}/apps/${appId}`;
 
   if (actionType === "delete") {
     try {
       const response = await fetch(url, {
         method: "DELETE",
         headers: {
-          X_API_KEY: process.env.MACHINE_BUILDER_API_KEY!,
+          X_API_KEY: process.env.APP_BUILDER_API_KEY!,
         },
       });
 
@@ -77,13 +77,13 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return redirect("/sign-in");
   }
 
-  const url = `${process.env.MACHINE_BUILDER_API_BASE_URL}/apps`;
+  const url = `${process.env.APP_BUILDER_API_BASE_URL}/apps`;
 
   try {
     const response = await fetch(url, {
       method: "GET",
       headers: {
-        X_API_KEY: process.env.MACHINE_BUILDER_API_KEY!,
+        X_API_KEY: process.env.APP_BUILDER_API_KEY!,
       },
     });
 
