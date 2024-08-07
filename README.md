@@ -111,13 +111,13 @@ cd web/
 
 [Create App](./docs/flyio/create-flyio-app.md)
 
-#### 2. Setup Environment variables:
+#### 3. Setup Environment variables:
 
 You need to add all the environment variables present in your [.env](./web/.env) file to Flyio [Secrets](https://fly.io/docs/apps/secrets/#setting-secrets) for Flyio to pick them during the deploy
 
 You can setup via command line using [flyctl](https://fly.io/docs/apps/secrets/#set-secrets) or use the app dashboard page `https://fly.io/apps/<your-app-name>/secrets`
 
-#### 3. Deploy app:
+#### 4. Deploy app:
 
 Make sure you're in `/web` directory before running below command
 
@@ -137,13 +137,15 @@ cd backend/
 
 [Create App](./docs/flyio/create-flyio-app.md) (Same steps as frontend)
 
-#### Setup Environment variables:
+#### 3. Setup Environment variables:
 
 You need to add all the environment variables present in your [.env](./web/.env) file to Flyio [Secrets](https://fly.io/docs/apps/secrets/#setting-secrets) for Flyio to pick them during the deploy
 
 You can setup via command line using [flyctl](https://fly.io/docs/apps/secrets/#set-secrets) or use the app dashboard page `https://fly.io/apps/<your-app-name>/secrets`
 
-#### 3. Deploy app:
+> Note: Make sure to include base url of the deployed frontend app from the above step in the comma separated list of `CORS_ALLOWED_ORIGINS` variable in your secrets
+
+#### 4. Deploy app:
 
 Make sure you're in `/backend` directory before running below command
 
