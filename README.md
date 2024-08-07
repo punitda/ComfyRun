@@ -2,9 +2,7 @@
 
 Run your ComfyUI workflows at blazing fast speed 🏎️ on the cloud GPUs powered by [Modal](https://modal.com/).
 
-Stop breaking your local ComfyUI environment setups when experimenting with new ideas 💡 or waiting for 🐌 slow builds to run on your machines.
-
-A fully open source and self hosted solution to run your workflows on the powerful GPUs
+Stop breaking your local ComfyUI environment setups when experimenting with new ideas 💡 or stop waiting for 🐌 slow builds to run on your machines. A fully open source and self hosted solution to run your ComfyUI workflows on the powerful cloud GPUs
 
 ## App Screenshots
 
@@ -38,27 +36,27 @@ Pre-requisites
 
 Once the node is installed, please run below commands to install and run the app locally
 
-#### Change directory:
+#### 1. Change directory:
 
 ```sh
-cd web
+cd web/
 ```
 
-#### Install dependencies:
+#### 2. Install dependencies:
 
 ```sh
 npm install
 ```
 
-#### Setup Environment variables:
+#### 3. Setup Environment variables:
 
-Create `.env.` file from `.env.sample` and add required keys(more info below how to get them)
+Create `.env.` file from `.env.sample` and add required keys(more info in the video linked below)
 
 ```
 cp .env.sample .env
 ```
 
-#### Run app
+#### 4. Run app
 
 ```sh
 npm run dev
@@ -69,26 +67,86 @@ npm run dev
 Pre-requisites
 
 - Install [Docker Desktop](https://www.docker.com/products/docker-desktop/) to avoid messing with Python virtual environment
-- Install [Modal Client]()
 
-#### Change directory:
+#### 1. Change directory:
 
 ```sh
-cd backend
+cd backend/
 ```
 
-#### Setup Environment variables:
+#### 2. Setup Environment variables:
 
-Create `.env.` file from `.env.sample` and add required keys(more info below how to get them)
+Create `.env.` file from `.env.sample` and add required keys(more info in the video linked below)
 
 ```
 cp .env.sample .env
 ```
 
-#### Run app
+#### 3. Run app
 
 ```sh
 docker-compose -f docker-compose.local.yml up --build
 ```
 
 > Note: Make sure docker desktop is running before running this command
+
+## Hosting
+
+The current implementation hosts both frontend and backend on [Fly.io](https://fly.io/). However, you can use any other service of your choice to host using the Dockerfile for both frontend and backend
+
+Pre-requisites
+
+- Sign up on [Fly.io](https://fly.io/)
+- Install [flyctl](https://fly.io/docs/flyctl/install/)
+
+### Frontend
+
+#### 1. Change directory:
+
+```sh
+cd web/
+```
+
+#### 2. Create Fly app:
+
+[Create App](./docs/flyio/create-flyio-app.md)
+
+#### 2. Setup Environment variables:
+
+You need to add all the environment variables present in your [.env](./web/.env) file to Flyio [Secrets](https://fly.io/docs/apps/secrets/#setting-secrets) for Flyio to pick them during the deploy
+
+You can setup via command line using [flyctl](https://fly.io/docs/apps/secrets/#set-secrets) or use the app dashboard page `https://fly.io/apps/<your-app-name>/secrets`
+
+#### 3. Deploy app:
+
+Make sure you're in `/web` directory before running below command
+
+```sh
+fly deploy
+```
+
+### Backend
+
+#### 1. Change directory:
+
+```sh
+cd backend/
+```
+
+#### 2. Create Fly app:
+
+[Create App](./docs/flyio/create-flyio-app.md) (Same steps as frontend)
+
+#### Setup Environment variables:
+
+You need to add all the environment variables present in your [.env](./web/.env) file to Flyio [Secrets](https://fly.io/docs/apps/secrets/#setting-secrets) for Flyio to pick them during the deploy
+
+You can setup via command line using [flyctl](https://fly.io/docs/apps/secrets/#set-secrets) or use the app dashboard page `https://fly.io/apps/<your-app-name>/secrets`
+
+#### 3. Deploy app:
+
+Make sure you're in `/backend` directory before running below command
+
+```sh
+fly deploy
+```
