@@ -32,9 +32,9 @@ For running self hosted solution, please sign-up for following services:
 
 Pre-requisites
 
-- Node >v20.x.x - recommend to install via some node version manager like [nvm](https://github.com/nvm-sh/nvm) or [n](https://github.com/tj/n)
+- Node >v20.x.x - recommended to install via some node version manager like [nvm](https://github.com/nvm-sh/nvm) or [n](https://github.com/tj/n)
 
-Once the node is installed, please run below commands to install and run the app locally
+Once the Node is installed, please run below commands to install and run the app locally
 
 #### 1. Change directory:
 
@@ -113,7 +113,7 @@ cd web/
 
 #### 3. Setup Environment variables:
 
-You need to add all the environment variables present in your [.env](./web/.env) file to Flyio [Secrets](https://fly.io/docs/apps/secrets/#setting-secrets) for Flyio to pick them during the deploy
+You need to add all the environment variables present in your `./web/.env` file to Flyio [Secrets](https://fly.io/docs/apps/secrets/#setting-secrets) for Flyio to pick them during the deploy
 
 You can setup via command line using [flyctl](https://fly.io/docs/apps/secrets/#set-secrets) or use the app dashboard page `https://fly.io/apps/<your-app-name>/secrets`
 
@@ -139,7 +139,7 @@ cd backend/
 
 #### 3. Setup Environment variables:
 
-You need to add all the environment variables present in your [.env](./web/.env) file to Flyio [Secrets](https://fly.io/docs/apps/secrets/#setting-secrets) for Flyio to pick them during the deploy
+You need to add all the environment variables present in your `./backend/.env` file to Flyio [Secrets](https://fly.io/docs/apps/secrets/#setting-secrets) for Flyio to pick them during the deploy
 
 You can setup via command line using [flyctl](https://fly.io/docs/apps/secrets/#set-secrets) or use the app dashboard page `https://fly.io/apps/<your-app-name>/secrets`
 
