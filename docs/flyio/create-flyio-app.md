@@ -42,9 +42,9 @@ Tigris:       <none>                                          (not requested)
 
 You'll be redirected to web page which would look like below:
 
-![Launch Flyio App](./screenshots/flyio/launch-flyio-app.png)
+![Launch Flyio App](../../screenshots/flyio/launch-flyio-app.png)
 
 Enter app name, region, VM sizes as per you choice and requirements
 
 Click "Confirm Settings" and you'de be redirected back to terminal.
-You're app is now read to deploy! 😎
+You're app is now ready to deploy! 😎
