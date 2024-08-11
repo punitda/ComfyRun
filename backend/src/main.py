@@ -104,7 +104,7 @@ def verify_api_key(api_key: Annotated[str, Header(alias="X_API_KEY")]):
 
 
 @app.get("/apps", dependencies=[Depends(verify_api_key)])
-async def list_apps():
+async def list_apps(workspace: str):
     command = "modal app list --json"
     process = await asyncio.create_subprocess_shell(
         command,
