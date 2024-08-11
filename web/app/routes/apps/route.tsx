@@ -330,6 +330,11 @@ function DropdownActionMenu({ app }: DropdownActionMenuProps) {
           <DropdownMenuItem>
             <Link to={`/create-app?rebuild=${app.description}`}>Rebuild</Link>
           </DropdownMenuItem>
+          <DropdownMenuItem>
+            <Link to={app.url} rel="noopener noreferrer" target="_blank">
+              Open App
+            </Link>
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
       <DialogContent>
