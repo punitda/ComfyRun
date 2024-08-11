@@ -92,6 +92,7 @@ export interface App {
   tasks: string;
   created_at: string;
   stopped_at: string | null;
+  url: string;
 }
 
 export interface TimeInterval {
