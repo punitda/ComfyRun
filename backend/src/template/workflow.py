@@ -60,12 +60,11 @@ class ComfyWorkflow:
             unzip_insight_face_models()
             if downloaded:
                 models_volume.commit()
-
-    @enter()
-    def copy_models(self):
-        # Copy models from Volume to models directory
-        shutil.copytree(
-            MODELS_PATH, "/root/comfy/ComfyUI/models", dirs_exist_ok=True)
+                print(
+                    "Copying models to correct directory - This might take a few more seconds")
+                shutil.copytree(
+                    MODELS_PATH, "/root/comfy/ComfyUI/models", dirs_exist_ok=True)
+                print("Models copied!!")
 
     def _run_comfyui_server(self, port=8188):
         cmd = f"comfy --skip-prompt launch -- --listen 0.0.0.0 --port {port}"
