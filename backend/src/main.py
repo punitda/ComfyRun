@@ -124,7 +124,11 @@ async def list_apps(workspace: str):
 
     try:
         data = json.loads(stdout.decode())
-        response = [App(**item).model_dump() for item in data]
+        response = []
+        for item in data:
+            item['url'] = f"https://{workspace}--{item['Description']}-comfyworkflow-ui.modal.run"
+            updated_app = App.model_validate(item)
+            response.append(updated_app.model_dump())
         return response
     except json.JSONDecodeError as exc:
         raise HTTPException(
