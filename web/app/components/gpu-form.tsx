@@ -72,7 +72,7 @@ export default function GpuForm({
                 name="machine_name"
                 placeholder="Machine name"
                 defaultValue={machineName}
-                disabled={!!machineName}
+                className={machineName ? "cursor-not-allowed opacity-50" : ""}
                 readOnly={!!machineName}
                 onChange={(e) => {
                   if (machineNameRegex.test(e.target.value)) {
