@@ -70,6 +70,6 @@ class ComfyWorkflow:
         cmd = f"comfy --skip-prompt launch -- --listen 0.0.0.0 --port {port}"
         subprocess.Popen(cmd, shell=True)
 
-    @web_server(8188, startup_timeout=30)
+    @web_server(8188, startup_timeout=60)
     def ui(self):
         self._run_comfyui_server()
