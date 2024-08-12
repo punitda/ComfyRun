@@ -252,7 +252,7 @@ function AppsLayout({ apps }: AppsLayoutProps) {
               return (
                 <tr key={app.app_id}>
                   <td className="py-4 pl-4 pr-8 sm:pl-6 lg:pl-8">
-                    <div className="truncate text-sm font-medium leading-6 text-primary/80 hover:underline">
+                    <div className="truncate text-sm font-medium leading-6 text-primary/80 underline">
                       <Link
                         to={app.url}
                         rel="noopener noreferrer"
