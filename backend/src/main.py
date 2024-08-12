@@ -350,3 +350,24 @@ def reorder_dict(original_dict, keys_to_move_first):
 
     return reordered
 
+
+async def run_command(command: str) -> str:
+    try:
+        process = await asyncio.create_subprocess_shell(
+            command,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+
+        stdout, stderr = await process.communicate()
+
+        if process.returncode != 0:
+            error_msg = stderr.decode().strip()
+            raise RuntimeError(
+                f"Command '{command}' failed with error: {error_msg}")
+
+        return stdout.decode().strip()
+    except Exception as e:
+        logger.exception(
+            "An error occurred while running command '%s': %s", command, str(e))
+        raise
