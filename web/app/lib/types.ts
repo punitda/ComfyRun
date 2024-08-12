@@ -67,6 +67,7 @@ export interface CreateAppRequestBody {
   custom_nodes: OutputCustomNodesJson;
   models: OutputModel[];
   additional_dependencies?: string;
+  idle_timeout: number;
 }
 
 export interface CreateAppSuccessResponseBody {
