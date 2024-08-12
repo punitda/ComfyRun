@@ -17,6 +17,7 @@ export function generateCreateMachineRequestBody(
   const gpu = formData.get("gpu") as string;
   const additional_dependencies =
     (formData.get("dependencies") as string) ?? null;
+  const idle_timeout = Number(formData.get("idle_timeout") as string);
 
   return {
     machine_name,
@@ -24,6 +25,7 @@ export function generateCreateMachineRequestBody(
     custom_nodes,
     models,
     additional_dependencies,
+    idle_timeout,
   };
 }
 
