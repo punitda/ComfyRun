@@ -50,4 +50,4 @@ class App(BaseModel):
 
     class Config:
         alias_generator = to_snake
-        allow_population_by_field_name = True
+        populate_by_name = True
