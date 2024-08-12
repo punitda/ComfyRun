@@ -34,10 +34,22 @@ logger = logging.getLogger(__name__)
 
 load_dotenv()
 
+required_env_vars = ["MODAL_TOKEN_ID",
+                     "MODAL_TOKEN_SECRET", "X_API_KEY", "CORS_ALLOWED_ORIGINS"]
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # pylint: disable-next=global-statement
+
+    # Check if require missing env vars are present. If not, throw error
+    missing_vars = [
+        env_var for env_var in required_env_vars if not os.getenv(env_var)]
+    if missing_vars:
+        error_msg = f"Missing required environment variables: {', '.join(missing_vars)}"
+        raise RuntimeError(error_msg)
+
+    # Fetch node map json
     global ext_node_map
     node_map = await fetch_node_map()
     # Need to reorder and put some custom_nodes at the top otherwise comfyui cli picks up other random nodes during the lookup from workflow.json files
