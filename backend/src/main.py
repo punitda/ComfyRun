@@ -128,10 +128,10 @@ def verify_api_key(api_key: Annotated[str, Header(alias="X_API_KEY")]):
 @app.get("/apps", dependencies=[Depends(verify_api_key)])
 async def list_apps():
     try:
-        workspace = await run_command("modal profile current")
+        workspace = await run_modal_command("modal profile current")
         logger.info("Current workspace: %s", workspace)
 
-        app_list_json = await run_command("modal app list --json")
+        app_list_json = await run_modal_command("modal app list --json")
         data = json.loads(app_list_json)
         response = []
 
@@ -346,12 +346,19 @@ def reorder_dict(original_dict, keys_to_move_first):
     return reordered
 
 
-async def run_command(command: str) -> str:
+async def run_modal_command(command: str) -> str:
     try:
+        env = {
+            **os.environ,
+            "MODAL_TOKEN_ID": os.getenv("MODAL_TOKEN_ID"),
+            "MODAL_TOKEN_SECRET": os.getenv("MODAL_TOKEN_SECRET"),
+            "COLUMNS": "10000",
+        }
         process = await asyncio.create_subprocess_shell(
             command,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
+            env=env
         )
 
         stdout, stderr = await process.communicate()
