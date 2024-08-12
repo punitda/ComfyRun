@@ -55,6 +55,16 @@ async def lifespan(app: FastAPI):
     # Need to reorder and put some custom_nodes at the top otherwise comfyui cli picks up other random nodes during the lookup from workflow.json files
     ext_node_map = reorder_dict(
         node_map, ["https://github.com/cubiq/ComfyUI_IPAdapter_plus"])
+
+    # Set model credentials for running modal commands
+    command = f"modal token set --token-id {os.getenv('MODAL_TOKEN_ID')} --token-secret {os.getenv('MODAL_TOKEN_SECRET')}"
+    process = await asyncio.create_subprocess_shell(
+        command,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE,
+    )
+    await process.communicate()
+
     yield
     ext_node_map.clear()
 
@@ -339,3 +349,4 @@ def reorder_dict(original_dict, keys_to_move_first):
             reordered[key] = value
 
     return reordered
+
