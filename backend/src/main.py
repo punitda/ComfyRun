@@ -34,15 +34,37 @@ logger = logging.getLogger(__name__)
 
 load_dotenv()
 
+required_env_vars = ["MODAL_TOKEN_ID",
+                     "MODAL_TOKEN_SECRET", "X_API_KEY", "CORS_ALLOWED_ORIGINS"]
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # pylint: disable-next=global-statement
+
+    # Check if require missing env vars are present. If not, throw error
+    missing_vars = [
+        env_var for env_var in required_env_vars if not os.getenv(env_var)]
+    if missing_vars:
+        error_msg = f"Missing required environment variables: {', '.join(missing_vars)}"
+        raise RuntimeError(error_msg)
+
+    # Fetch node map json
     global ext_node_map
     node_map = await fetch_node_map()
     # Need to reorder and put some custom_nodes at the top otherwise comfyui cli picks up other random nodes during the lookup from workflow.json files
     ext_node_map = reorder_dict(
         node_map, ["https://github.com/cubiq/ComfyUI_IPAdapter_plus"])
+
+    # Set model credentials for running modal commands
+    command = f"modal token set --token-id {os.getenv('MODAL_TOKEN_ID')} --token-secret {os.getenv('MODAL_TOKEN_SECRET')}"
+    process = await asyncio.create_subprocess_shell(
+        command,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE,
+    )
+    await process.communicate()
+
     yield
     ext_node_map.clear()
 
@@ -105,30 +127,29 @@ def verify_api_key(api_key: Annotated[str, Header(alias="X_API_KEY")]):
 
 @app.get("/apps", dependencies=[Depends(verify_api_key)])
 async def list_apps():
-    command = "modal app list --json"
-    process = await asyncio.create_subprocess_shell(
-        command,
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE,
-        env={**os.environ,
-             "MODAL_TOKEN_ID": os.getenv("MODAL_TOKEN_ID"),
-             "MODAL_TOKEN_SECRET": os.getenv("MODAL_TOKEN_SECRET"),
-             "COLUMNS": "10000",
-             }
-    )
-    stdout, stderr = await process.communicate()
-
-    if process.returncode != 0:
-        raise HTTPException(
-            status_code=500, detail=f"Unable to find apps: {stderr.decode()}")
-
     try:
-        data = json.loads(stdout.decode())
-        response = [App(**item).model_dump() for item in data]
+        workspace = await run_modal_command("modal profile current")
+        logger.info("Current workspace: %s", workspace)
+
+        app_list_json = await run_modal_command("modal app list --json")
+        data = json.loads(app_list_json)
+        response = []
+
+        for item in data:
+            item['url'] = f"https://{workspace}--{item['Description']}-comfyworkflow-ui.modal.run"
+            updated_app = App.model_validate(item)
+            response.append(updated_app.model_dump())
         return response
-    except json.JSONDecodeError as exc:
+
+    except json.JSONDecodeError as e:
+        logger.error("Failed to parse JSON output: %s", str(e))
         raise HTTPException(
-            status_code=500, detail="Invalid response") from exc
+            status_code=500, detail="Invalid response") from e
+
+    except Exception as e:
+        logger.error("Error occurred when fetching list of apps: %s", str(e))
+        raise HTTPException(
+            status_code=500, detail="Invalid response") from e
 
 
 @app.delete("/apps/{app_id}", dependencies=[Depends(verify_api_key)])
@@ -323,3 +344,32 @@ def reorder_dict(original_dict, keys_to_move_first):
             reordered[key] = value
 
     return reordered
+
+
+async def run_modal_command(command: str) -> str:
+    try:
+        env = {
+            **os.environ,
+            "MODAL_TOKEN_ID": os.getenv("MODAL_TOKEN_ID"),
+            "MODAL_TOKEN_SECRET": os.getenv("MODAL_TOKEN_SECRET"),
+            "COLUMNS": "10000",
+        }
+        process = await asyncio.create_subprocess_shell(
+            command,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+            env=env
+        )
+
+        stdout, stderr = await process.communicate()
+
+        if process.returncode != 0:
+            error_msg = stderr.decode().strip()
+            raise RuntimeError(
+                f"Command '{command}' failed with error: {error_msg}")
+
+        return stdout.decode().strip()
+    except Exception as e:
+        logger.exception(
+            "An error occurred while running command '%s': %s", command, str(e))
+        raise
