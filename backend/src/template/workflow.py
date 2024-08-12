@@ -28,6 +28,7 @@ comfyui_image = (Image.debian_slim(python_version="3.10")
 
 machine_name = config["machine_name"]
 gpu_config = config["gpu"]
+idle_timeout = config["idle_timeout"]
 
 
 app = App(
@@ -44,7 +45,7 @@ app = App(
     gpu=gpu_config,
     image=comfyui_image,
     timeout=300,
-    container_idle_timeout=300,
+    container_idle_timeout=idle_timeout,
     allow_concurrent_inputs=100,
     # Restrict to 1 container because we want to our ComfyUI session state
     # to be on a single container.
