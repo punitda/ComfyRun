@@ -126,35 +126,30 @@ def verify_api_key(api_key: Annotated[str, Header(alias="X_API_KEY")]):
 
 
 @app.get("/apps", dependencies=[Depends(verify_api_key)])
-async def list_apps(workspace: str):
-    command = "modal app list --json"
-    process = await asyncio.create_subprocess_shell(
-        command,
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE,
-        env={**os.environ,
-             "MODAL_TOKEN_ID": os.getenv("MODAL_TOKEN_ID"),
-             "MODAL_TOKEN_SECRET": os.getenv("MODAL_TOKEN_SECRET"),
-             "COLUMNS": "10000",
-             }
-    )
-    stdout, stderr = await process.communicate()
-
-    if process.returncode != 0:
-        raise HTTPException(
-            status_code=500, detail=f"Unable to find apps: {stderr.decode()}")
-
+async def list_apps():
     try:
-        data = json.loads(stdout.decode())
+        workspace = await run_command("modal profile current")
+        logger.info("Current workspace: %s", workspace)
+
+        app_list_json = await run_command("modal app list --json")
+        data = json.loads(app_list_json)
         response = []
+
         for item in data:
             item['url'] = f"https://{workspace}--{item['Description']}-comfyworkflow-ui.modal.run"
             updated_app = App.model_validate(item)
             response.append(updated_app.model_dump())
         return response
-    except json.JSONDecodeError as exc:
+
+    except json.JSONDecodeError as e:
+        logger.error("Failed to parse JSON output: %s", str(e))
         raise HTTPException(
-            status_code=500, detail="Invalid response") from exc
+            status_code=500, detail="Invalid response") from e
+
+    except Exception as e:
+        logger.error("Error occurred when fetching list of apps: %s", str(e))
+        raise HTTPException(
+            status_code=500, detail="Invalid response") from e
 
 
 @app.delete("/apps/{app_id}", dependencies=[Depends(verify_api_key)])
