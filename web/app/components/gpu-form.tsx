@@ -23,7 +23,7 @@ import { useFetcher } from "@remix-run/react";
 import { useState } from "react";
 import { action } from "~/routes/create-app/route";
 
-import { GPU, OutputCustomNodesJson, OutputModel } from "~/lib/types";
+import { GPU, OutputCustomNodesJson, OutputModel, Timeout } from "~/lib/types";
 import { CREATE_APP_FETCHER_KEY } from "~/lib/constants";
 
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
@@ -91,7 +91,7 @@ export default function GpuForm({
           </div>
           <div className="sm:col-span-4">
             <div className="flex items-center space-x-2">
-              <Label htmlFor="workflow-file">Select GPU</Label>
+              <Label>Select GPU</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <InformationCircleIcon className="size-6 text-primary/70" />
@@ -117,6 +117,39 @@ export default function GpuForm({
               <GpuSelect />
             </div>
           </div>
+
+          <div className="sm:col-span-4">
+            <div className="flex items-center space-x-2">
+              <Label>Select Idle Timeout</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <InformationCircleIcon className="size-6 text-primary/70" />
+                </PopoverTrigger>
+                <PopoverContent className="w-96">
+                  <p className="text-primary/90 text-sm mt-1">
+                    This value determines how long your app would stay active
+                    after minutes of inactivity. Once the app is inactive,
+                    re-opening app it would incur some time to get it warmed up
+                    again. Default value is set to{" "}
+                    <span className="font-bold">5 mins</span>. You can find more
+                    info{" "}
+                    <a
+                      href="https://modal.com/docs/guide/cold-start#keep-containers-warm-for-longer-with-container_idle_timeout"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline"
+                    >
+                      here
+                    </a>
+                  </p>
+                </PopoverContent>
+              </Popover>
+            </div>
+            <div className="mt-2">
+              <TimeoutSelect />
+            </div>
+          </div>
+
           <div className="sm:col-span-4">
             <Label id="dependencies">
               Additional Python dependencies(optional)
@@ -197,6 +230,30 @@ function GpuSelect() {
           <SelectLabel>GPUs</SelectLabel>
           {Object.entries(GPU).map(([key, value]) => (
             <SelectItem value={value} key={value}>
+              {key}
+            </SelectItem>
+          ))}
+        </SelectGroup>
+      </SelectContent>
+    </Select>
+  );
+}
+
+function TimeoutSelect() {
+  return (
+    <Select
+      required
+      name="idle_timeout"
+      defaultValue={Timeout["5 mins"].toString()}
+    >
+      <SelectTrigger className="w-[200px]">
+        <SelectValue placeholder="Select Idle Timeout" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectGroup>
+          <SelectLabel>Idle Timeout</SelectLabel>
+          {Object.entries(Timeout).map(([key, value]) => (
+            <SelectItem value={value.toString()} key={value}>
               {key}
             </SelectItem>
           ))}
