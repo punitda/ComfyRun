@@ -37,6 +37,7 @@ class CreateAppPayload(BaseModel):
     custom_nodes: CustomNodes
     models: List[Model]
     additional_dependencies: Optional[str] = None,
+    idle_timeout: int
 
 
 class App(BaseModel):

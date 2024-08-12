@@ -36,6 +36,13 @@ export enum GPU {
   H100 = "h100",
 }
 
+export const Timeout = {
+  "5 mins": 300,
+  "10 mins": 600,
+  "15 mins": 900,
+  "20 mins": 1200,
+} as const;
+
 export interface OutputNode {
   state: string;
   hash: string;
@@ -60,6 +67,7 @@ export interface CreateAppRequestBody {
   custom_nodes: OutputCustomNodesJson;
   models: OutputModel[];
   additional_dependencies?: string;
+  idle_timeout: number;
 }
 
 export interface CreateAppSuccessResponseBody {

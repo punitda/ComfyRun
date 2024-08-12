@@ -180,6 +180,7 @@ async def deploy_app(payload: CreateAppPayload):
         "machine_name": slugify(payload.machine_name),
         "gpu": payload.gpu.value,
         "additional_dependencies": payload.additional_dependencies,
+        "idle_timeout": payload.idle_timeout
     }
 
     os.makedirs(os.path.dirname(f"{folder_path}/config.py"), exist_ok=True)
