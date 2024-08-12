@@ -77,7 +77,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return redirect("/sign-in");
   }
 
-  const url = `${process.env.APP_BUILDER_API_BASE_URL}/apps?workspace=${data.user.username}`;
+  const url = `${process.env.APP_BUILDER_API_BASE_URL}/apps`;
 
   try {
     const response = await fetch(url, {
