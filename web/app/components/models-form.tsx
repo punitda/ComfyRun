@@ -242,6 +242,8 @@ function AddCustomModelDialog({ onModelSaved }: AddCustomModelDialogProps) {
       setName("");
       setPath("");
       setUrl("");
+      setIsValidUrl(true);
+      setIsValidName(true);
     }
 
     setDialogOpen(open);
@@ -260,49 +262,59 @@ function AddCustomModelDialog({ onModelSaved }: AddCustomModelDialogProps) {
             You can directly download models from HuggingFace
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
+        <div className="grid gap-3 py-4">
+          <div className="grid grid-cols-4 items-center gap-y-2 gap-x-4">
             <Label htmlFor="name" className="text-right">
               Name
             </Label>
-            <div className="col-span-3">
-              <Input
-                id="name"
-                placeholder="Flux.1-dev"
-                onChange={(e) => {
-                  setName(e.target.value);
-                  setIsValidName(isValidModelFileName(e.target.value));
-                }}
-              />
-              {!isValidName ? (
-                <p className="mt-2 text-xs text-rose-500">
-                  Special characters not allowed in the name except _
-                </p>
-              ) : null}
+
+            <Input
+              id="name"
+              placeholder="Flux.1-dev"
+              className="col-span-3"
+              onChange={(e) => {
+                setName(e.target.value);
+                setIsValidName(isValidModelFileName(e.target.value));
+              }}
+            />
+
+            <div className="col-start-2 col-span-3">
+              <p
+                className={`text-xs text-rose-500 transition-opacity duration-200 ${
+                  !isValidName ? "opacity-100" : "opacity-0"
+                }`}
+              >
+                Special characters not allowed in the name except _
+              </p>
             </div>
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
+          <div className="grid grid-cols-4 items-center gap-y-2 gap-x-4">
             <Label htmlFor="url" className="text-right">
               Url
             </Label>
-            <div className="col-span-3">
-              <Input
-                id="url"
-                placeholder="https://huggingface.co/black-forest-labs/FLUX.1-dev/resolve/main/flux1-dev.safetensors"
-                onChange={(e) => {
-                  setUrl(e.target.value);
-                  setIsValidUrl(isValidModelUrl(e.target.value));
-                }}
-              />
-              {!isValidUrl ? (
-                <p className="mt-2 text-xs text-rose-500 ">
-                  Please enter a valid URL
-                </p>
-              ) : null}
+
+            <Input
+              className="col-span-3"
+              id="url"
+              placeholder="https://huggingface.co/black-forest-labs/FLUX.1-dev/resolve/main/flux1-dev.safetensors"
+              onChange={(e) => {
+                setUrl(e.target.value);
+                setIsValidUrl(isValidModelUrl(e.target.value));
+              }}
+            />
+
+            <div className="col-start-2 col-span-3">
+              <p
+                className={`text-xs text-rose-500 transition-opacity duration-200 ${
+                  !isValidUrl ? "opacity-100" : "opacity-0"
+                }`}
+              >
+                Please enter a valid URL
+              </p>
             </div>
           </div>
 
-          <div className="grid grid-cols-4 items-center gap-4">
+          <div className="grid grid-cols-4 items-center gap-y-2 gap-x-4">
             <Label htmlFor="path" className="text-right">
               Path
             </Label>
