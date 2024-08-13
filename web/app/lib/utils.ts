@@ -113,7 +113,8 @@ export function formatRelativeTime(dateTimeString: string): string {
 
 export function isValidModelUrl(url: string): boolean {
   const validExtensions = [".ckpt", ".safetensors", ".pt", ".pth", ".bin"];
-  const urlRegex = /^https?:\/\/.+/i;
+  const urlRegex =
+    /^(https?:\/\/)?([\da-z.-]+\.)*huggingface\.co([/\w .-]*)*\/?$/;
   if (!urlRegex.test(url)) {
     return false;
   }
