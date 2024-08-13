@@ -309,7 +309,7 @@ function AddCustomModelDialog({ onModelSaved }: AddCustomModelDialogProps) {
                   !isValidUrl ? "opacity-100" : "opacity-0"
                 }`}
               >
-                Please enter a valid URL
+                Please enter a valid download url from HuggingFace
               </p>
             </div>
           </div>
@@ -349,6 +349,7 @@ function AddCustomModelDialog({ onModelSaved }: AddCustomModelDialogProps) {
                 name,
                 save_path: path,
                 url,
+                type: "custom",
                 reference: "",
                 description: "",
                 size: "",
