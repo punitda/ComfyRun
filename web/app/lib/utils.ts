@@ -110,3 +110,17 @@ export function formatRelativeTime(dateTimeString: string): string {
 
   return rtf.format(0, "second");
 }
+
+export function isValidModelUrl(url: string): boolean {
+  const validExtensions = [".ckpt", ".safetensors", ".pt", ".pth", ".bin"];
+  const urlRegex = /^https?:\/\/.+/i;
+  if (!urlRegex.test(url)) {
+    return false;
+  }
+  return validExtensions.some((ext) => url.toLowerCase().includes(ext));
+}
+
+export function isValidModelFileName(input: string): boolean {
+  const regex = /^[a-zA-Z0-9_]+$/;
+  return regex.test(input);
+}
