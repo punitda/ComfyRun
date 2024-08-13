@@ -108,6 +108,8 @@ export default function CreateAppPage() {
     []
   );
 
+  const [selectedCustomModels, setSelectedCustomModels] = useState<Model[]>([]);
+
   function updateSteps(steps: FormStep[], currentPage: number) {
     const updatedSteps = steps.map((step, index) => {
       let status: FormStepStatus;
@@ -142,6 +144,18 @@ export default function CreateAppPage() {
 
   function updateSelectedCivitaiModels(models: Model[]) {
     setSelectedCivitaiModels(models);
+  }
+
+  function onCustomModelAdded(model: Model) {
+    const prevSelectedModels = selectedCustomModels;
+    if (
+      !prevSelectedModels.some(
+        (selectedModel) =>
+          selectedModel.url + selectedModel.name === model.url + model.name
+      )
+    ) {
+      setSelectedCustomModels([...prevSelectedModels, model]);
+    }
   }
 
   useEffect(() => {
@@ -180,8 +194,10 @@ export default function CreateAppPage() {
                 models={models}
                 selectedComfyUIModels={selectedComfyUIModels}
                 selectedCivitAIModels={selectedCivitaiModels}
+                selectedCustomModels={selectedCustomModels}
                 onComfyUIModelsSelected={updateSelectedComfyUIModels}
                 onCivitAIModelsSelected={updateSelectedCivitaiModels}
+                onCustomModelAdded={onCustomModelAdded}
                 onNextStep={(e) => {
                   e.preventDefault();
                   updateSteps(steps, 2);
@@ -200,7 +216,9 @@ export default function CreateAppPage() {
                     selectedCustomNodes.concat(selectedCustomNodesFromWFFile)
                   )}
                   modelsJson={convertModelsJson(
-                    selectedCivitaiModels.concat(selectedComfyUIModels)
+                    selectedCivitaiModels
+                      .concat(selectedComfyUIModels)
+                      .concat(selectedCustomModels)
                   )}
                   onBackStep={(e) => {
                     e.preventDefault();
