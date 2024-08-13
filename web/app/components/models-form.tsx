@@ -13,14 +13,25 @@ import { Check, ChevronsUpDown } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Label } from "~/components/ui/label";
 import { Switch } from "~/components/ui/switch";
+import { Input } from "~/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/ui/dialog";
+
 import { Model } from "~/lib/types";
-import { cn } from "~/lib/utils";
+import { cn, isValidModelFileName, isValidModelUrl } from "~/lib/utils";
 import { CivitAIModelComboBox, loader } from "~/routes/civitai-search/route";
 import { useFetcher } from "@remix-run/react";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
@@ -29,8 +40,10 @@ export interface ModelsFormProps {
   models: Model[];
   selectedComfyUIModels: Model[];
   selectedCivitAIModels: Model[];
+  selectedCustomModels: Model[];
   onComfyUIModelsSelected: (model: Model[]) => void;
   onCivitAIModelsSelected: (model: Model[]) => void;
+  onCustomModelAdded: (model: Model) => void;
   onNextStep: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
   onBackStep: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 }
@@ -39,8 +52,10 @@ export default function ModelsForm({
   models,
   selectedComfyUIModels,
   selectedCivitAIModels,
+  selectedCustomModels,
   onComfyUIModelsSelected,
   onCivitAIModelsSelected,
+  onCustomModelAdded,
   onNextStep,
   onBackStep,
 }: ModelsFormProps) {
@@ -75,6 +90,7 @@ export default function ModelsForm({
               />
             </div>
           </div>
+
           <div className="flex items-center space-x-2 sm:col-span-full">
             <Switch
               id="skip-model-download"
@@ -96,6 +112,13 @@ export default function ModelsForm({
               </PopoverContent>
             </Popover>
           </div>
+
+          <div className="sm:col-span-full">
+            <span className="text-sm">
+              Do you want download models from a huggingface url?
+              <AddCustomModelDialog onModelSaved={onCustomModelAdded} />
+            </span>
+          </div>
         </div>
       </div>
       <div className="flex items-center justify-end gap-x-6 border-t border-gray-900/10 px-4 py-4 sm:px-8">
@@ -107,6 +130,7 @@ export default function ModelsForm({
           disabled={
             selectedCivitAIModels.length === 0 &&
             selectedComfyUIModels.length === 0 &&
+            selectedCustomModels.length === 0 &&
             !skipModelsDownload
           }
         >
@@ -195,5 +219,136 @@ function ModelComboBox({
         </Command>
       </PopoverContent>
     </Popover>
+  );
+}
+
+interface AddCustomModelDialogProps {
+  onModelSaved: (model: Model) => void;
+}
+
+function AddCustomModelDialog({ onModelSaved }: AddCustomModelDialogProps) {
+  const [name, setName] = useState<string>("");
+  const [isValidName, setIsValidName] = useState<boolean>(true);
+
+  const [url, setUrl] = useState<string>("");
+  const [isValidUrl, setIsValidUrl] = useState<boolean>(true);
+
+  const [path, setPath] = useState<string>("");
+
+  const [dialogOpen, setDialogOpen] = useState<boolean>(false);
+
+  function onDialogOpenChange(open: boolean) {
+    if (!open) {
+      setName("");
+      setPath("");
+      setUrl("");
+    }
+
+    setDialogOpen(open);
+  }
+  return (
+    <Dialog open={dialogOpen} onOpenChange={onDialogOpenChange}>
+      <DialogTrigger asChild>
+        <Button variant="link" className="pl-1">
+          Add it
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[600px]">
+        <DialogHeader>
+          <DialogTitle>Add Model Info</DialogTitle>
+          <DialogDescription>
+            You can directly download models from HuggingFace
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="name" className="text-right">
+              Name
+            </Label>
+            <div className="col-span-3">
+              <Input
+                id="name"
+                placeholder="Flux.1-dev"
+                onChange={(e) => {
+                  setName(e.target.value);
+                  setIsValidName(isValidModelFileName(e.target.value));
+                }}
+              />
+              {!isValidName ? (
+                <p className="mt-2 text-xs text-rose-500">
+                  Special characters not allowed in the name except _
+                </p>
+              ) : null}
+            </div>
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="url" className="text-right">
+              Url
+            </Label>
+            <div className="col-span-3">
+              <Input
+                id="url"
+                placeholder="https://huggingface.co/black-forest-labs/FLUX.1-dev/resolve/main/flux1-dev.safetensors"
+                onChange={(e) => {
+                  setUrl(e.target.value);
+                  setIsValidUrl(isValidModelUrl(e.target.value));
+                }}
+              />
+              {!isValidUrl ? (
+                <p className="mt-2 text-xs text-rose-500 ">
+                  Please enter a valid URL
+                </p>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="path" className="text-right">
+              Path
+            </Label>
+            <Input
+              id="path"
+              className="col-span-3"
+              placeholder="checkpoints or clip or upscale_models or vae"
+              onChange={(e) => {
+                setPath(e.target.value);
+              }}
+            />
+          </div>
+        </div>
+        <DialogFooter className="sm:space-x-2 sm:flex sm:justify-between sm:items-center w-full">
+          <p className="text-xs mt-1 text-left">
+            Note: Custom download source is not supported
+          </p>
+          <Button
+            disabled={!isValidUrl || !isValidName || path.length == 0}
+            onClick={(e) => {
+              e.preventDefault();
+              if (name.length == 0 || !isValidModelFileName(name)) {
+                setIsValidName(false);
+                return;
+              }
+              if (url.length == 0 || !isValidModelUrl(url)) {
+                setIsValidUrl(false);
+                return;
+              }
+              onModelSaved({
+                filename: name,
+                name,
+                save_path: path,
+                url,
+                reference: "",
+                description: "",
+                size: "",
+                base: "",
+              });
+              onDialogOpenChange(false);
+            }}
+          >
+            Save
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
