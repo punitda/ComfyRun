@@ -349,6 +349,7 @@ function AddCustomModelDialog({ onModelSaved }: AddCustomModelDialogProps) {
                 name,
                 save_path: path,
                 url,
+                type: "custom",
                 reference: "",
                 description: "",
                 size: "",
