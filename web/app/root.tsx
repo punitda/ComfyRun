@@ -18,6 +18,7 @@ import { Toaster } from "~/components/ui/toaster";
 import { ClerkApp, SignedIn, UserButton } from "@clerk/remix";
 import { rootAuthLoader } from "@clerk/remix/ssr.server";
 import LoadingIndicator from "./components/loading-indicator";
+import GithubIcon from "./components/icons/github-icon";
 
 export async function loader(args: LoaderFunctionArgs) {
   return rootAuthLoader(args, () => {
@@ -65,6 +66,17 @@ function App() {
         <nav className="p-4 min-h-16">
           <div className="container mx-auto flex justify-between items-center">
             <div className="flex items-center space-x-4 ml-auto">
+              {location.pathname === "/" ? (
+                <div className="w-5 h-5">
+                  <Link
+                    to="https://github.com/punitda/modal-comfyui-deploy-app"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <GithubIcon />
+                  </Link>
+                </div>
+              ) : null}
               <SignedIn>
                 <Link to="/apps" hidden={location.pathname === "/apps"}>
                   Apps
