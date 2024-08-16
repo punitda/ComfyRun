@@ -35,11 +35,31 @@ export default function Hero() {
           </h1>
           <p className="mt-6 text-lg leading-8 text-gray-600">
             Bored of waiting for ComfyUI workflows to run on your slow machines?
-            Start running them on cloud GPUs powered by Modal
+            Start running them on cloud GPUs powered by{" "}
+            <span>
+              <a
+                href="https://modal.com/"
+                rel="noopener noreferrer"
+                target="_blank"
+                className="underline underline-offset-4"
+              >
+                Modal
+              </a>
+            </span>
           </p>
           <div className="mt-10 flex items-center gap-x-6">
             <Button asChild>
               <Link to="/create-app">Get started</Link>
+            </Button>
+            <Button asChild variant="link">
+              <Link
+                to="https://www.youtube.com/watch?v=y1kMzXtIvVY"
+                rel="noopener noreferrer"
+                target="_blank"
+                className="leading-6"
+              >
+                Learn more &#160;<span aria-hidden="true">→</span>
+              </Link>
             </Button>
           </div>
         </div>

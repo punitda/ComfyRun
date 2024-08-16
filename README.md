@@ -4,6 +4,10 @@ Run your ComfyUI workflows at blazing fast speed 🏎️ on the cloud GPUs power
 
 Stop breaking your local ComfyUI environment setups when experimenting with new ideas 💡 or stop waiting for 🐌 slow builds to run on your machines. A fully open source and self hosted solution to run your ComfyUI workflows on the powerful cloud GPUs
 
+## App Intro
+
+[![Video](./screenshots/app/app-intro.gif)](https://www.youtube.com/watch?v=y1kMzXtIvVY)
+
 ## App Screenshots
 
 ![Create App Screenshot](./screenshots/app/create-app-page.png)
@@ -92,12 +96,19 @@ docker-compose -f docker-compose.local.yml up --build
 
 ## Hosting
 
+Check out this video on how to self host this app
+
+[![Video](./screenshots/app/self-hosting-video.gif)](https://www.youtube.com/watch?v=xHzVPrXe4V8)
+
 The current implementation hosts both frontend and backend on [Fly.io](https://fly.io/). However, you can use any other service of your choice to host using the Dockerfile for both frontend and backend
 
 Pre-requisites
 
-- Sign up on [Fly.io](https://fly.io/)
-- Install [flyctl](https://fly.io/docs/flyctl/install/)
+1. Clone the repo
+2. Sign up on [Modal](https://modal.com/) & set token
+3. Sign up on [Clerk](https://clerk.com/) & create app
+4. Sign up on [Fly.io](https://fly.io/)
+5. Install [flyctl](https://fly.io/docs/flyctl/install/)
 
 ### Frontend
 
