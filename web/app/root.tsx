@@ -69,7 +69,7 @@ function App() {
               {location.pathname === "/" ? (
                 <div className="w-5 h-5">
                   <Link
-                    to="https://github.com/punitda/modal-comfyui-deploy-app"
+                    to="https://github.com/punitda/ComfyRun"
                     rel="noopener noreferrer"
                     target="_blank"
                   >
