@@ -58,7 +58,7 @@ npm install
 
 #### 3. Setup Environment variables:
 
-Create `.env.` file from `.env.sample` and add required keys(more info in the [this](https://youtu.be/xHzVPrXe4V8?t=405) video)
+Create `.env.` file from `.env.sample` and add required keys(more info in [this](https://youtu.be/xHzVPrXe4V8?t=405) video)
 
 ```
 cp .env.sample .env
