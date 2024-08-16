@@ -1,8 +1,12 @@
 # ComfyRun
 
-Run your ComfyUI workflows at blazing fast speed 🏎️ on the cloud GPUs powered by [Modal](https://modal.com/).
+A fully open source and self-hosted solution to run your ComfyUI workflows at blazing fast speeds on cloud GPUs powered by [Modal](https://modal.com/).
 
-Stop breaking your local ComfyUI environment setups when experimenting with new ideas 💡 or stop waiting for 🐌 slow builds to run on your machines. A fully open source and self hosted solution to run your ComfyUI workflows on the powerful cloud GPUs
+Best suited for individuals who want to 
+
+- Run complex workflows in seconds on the powerful GPUs like A10G, A100, and H100 🔋
+- Experiment with any workflows you find across web without worrying about breaking your local ComfyUI environment 😎
+- Edit workflows on the go 📱
 
 ## App Intro
 
