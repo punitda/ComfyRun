@@ -1,9 +1,9 @@
-# fly.toml app configuration file generated for punitd-modal-comfyui-deploy on 2024-07-30T11:36:54+05:30
+# fly.toml app configuration file generated for punitd-comfyrun on 2024-08-16T15:55:08+05:30
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'punitd-modal-comfyui-deploy'
+app = 'punitd-comfyrun'
 primary_region = 'sin'
 
 [build]
