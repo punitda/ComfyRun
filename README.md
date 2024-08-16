@@ -1,4 +1,4 @@
-# Modal ComfyUI Deploy
+# ComfyRun
 
 Run your ComfyUI workflows at blazing fast speed 🏎️ on the cloud GPUs powered by [Modal](https://modal.com/).
 
