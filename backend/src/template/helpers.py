@@ -68,10 +68,10 @@ def download_models(models, civitai_token) -> bool:
 
 
 def move_clip_vision_files():
-    if not DEST_CLIP_VISION_BIG_PATH.exists():
+    if SOURCE_CLIP_VISION_BIG_PATH.exists() and not DEST_CLIP_VISION_BIG_PATH.exists():
         print(f"Moving big clip vision model to {DEST_CLIP_VISION_BIG_PATH}")
         shutil.move(SOURCE_CLIP_VISION_BIG_PATH, DEST_CLIP_VISION_BIG_PATH)
-    if not DEST_CLIP_VISION_SMALL_PATH.exists():
+    if SOURCE_CLIP_VISION_SMALL_PATH.exists() and not DEST_CLIP_VISION_SMALL_PATH.exists():
         print(
             f"Moving small clip vision model to {DEST_CLIP_VISION_SMALL_PATH}")
         shutil.move(SOURCE_CLIP_VISION_SMALL_PATH, DEST_CLIP_VISION_SMALL_PATH)
