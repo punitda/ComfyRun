@@ -345,7 +345,6 @@ function AddCustomModelDialog({ onModelSaved }: AddCustomModelDialogProps) {
                 return;
               }
               onModelSaved({
-                filename: name,
                 name,
                 save_path: path,
                 url,
