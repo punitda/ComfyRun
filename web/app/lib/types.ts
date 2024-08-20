@@ -20,7 +20,7 @@ export interface Model {
   save_path: string;
   reference: string;
   url: string;
-  filename: string;
+  filename?: string;
   base: string;
   description: string;
   size: string;
@@ -59,6 +59,7 @@ export interface OutputModel {
   name: string;
   url: string;
   path: string;
+  filename?: string;
 }
 
 export interface CreateAppRequestBody {

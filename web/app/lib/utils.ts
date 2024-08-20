@@ -59,7 +59,7 @@ export function convertCustomNodesJson(nodes: CustomNode[]) {
 
 export function convertModelsJson(input: Model[]): OutputModel[] {
   return input.map((item) => {
-    const nameWithoutExtension = item.filename.split(".")[0];
+    const nameWithoutExtension = item.name.split(".")[0];
 
     let path: string;
     if (!item.type) {
@@ -81,6 +81,7 @@ export function convertModelsJson(input: Model[]): OutputModel[] {
       name: nameWithoutExtension,
       url: item.url,
       path: path.toLocaleLowerCase(),
+      filename: item.filename,
     };
   });
 }

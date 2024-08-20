@@ -19,6 +19,7 @@ class Model(BaseModel):
     name: str
     url: HttpUrl
     path: str
+    filename: Optional[str]
 
 
 class Gpu(str, Enum):
