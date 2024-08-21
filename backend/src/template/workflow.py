@@ -45,7 +45,7 @@ app = App(
 @app.cls(
     gpu=gpu_config,
     image=comfyui_image,
-    timeout=300,
+    timeout=idle_timeout,
     container_idle_timeout=idle_timeout,
     allow_concurrent_inputs=100,
     # Restrict to 1 container because we want to our ComfyUI session state
@@ -80,7 +80,7 @@ class ComfyWorkflow:
     cpu=4.0,
     memory=16384,
     image=comfyui_image,
-    timeout=300,
+    timeout=idle_timeout,
 )
 class EditingWorkflow:
     @build()
