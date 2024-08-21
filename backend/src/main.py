@@ -15,6 +15,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import StreamingResponse
 import httpx
+from httpx import ReadTimeout
 
 
 from dotenv import load_dotenv
@@ -169,6 +170,37 @@ async def delete_app(app_id: str):
             status_code=500, detail=f"Unable to delete app: {app_id}")
 
     return {"app_id": app_id, "deleted": True}
+
+
+@app.get("/apps/{app_name}/edit-workflow", dependencies=[Depends(verify_api_key)])
+async def get_edit_url(app_name: str):
+    try:
+        workspace = await run_modal_command("modal profile current")
+        url = f"https://{workspace}--{app_name}-editingworkflow-get-tunnel-url.modal.run"
+
+        logger.info("GET request to url %s", url)
+
+        # Set a 30-second timeout
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.get(url)
+            response.raise_for_status()
+            result = response.json()
+            logger.info("Tunnel url %s", result)
+            return result
+    except httpx.ReadTimeout as e:
+        logger.error(
+            "Request timed out while making a request to %s", e.request.url)
+        raise HTTPException(
+            status_code=504, detail="Request timed out while fetching edit URL")
+    except httpx.HTTPError as e:
+        logger.error("HTTP %d %s error occurred while making a request to %s",
+                     e.response.status_code, e.response.reason_phrase, e.request.url)
+        logger.error("Response content: %s", e.response.text)
+        raise HTTPException(
+            status_code=500, detail=f"Failed to fetch edit URL: {str(e)}")
+    except Exception as e:
+        logger.error("An error occurred: %s", str(e), exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 async def deploy_app(payload: CreateAppPayload):
