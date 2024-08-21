@@ -175,16 +175,19 @@ async def delete_app(app_id: str):
 async def get_edit_url(app_name: str):
     try:
         workspace = await run_modal_command("modal profile current")
-        url = f"https://{workspace}--{app_name}-editingworkflow-get-tunnel-url.modal.run"
+        edit_url = f"https://{workspace}--{app_name}-editingworkflow-get-tunnel-url.modal.run"
+        run_url = f"https://{workspace}--{app_name}-comfyworkflow-ui.modal.run"
 
-        logger.info("GET request to url %s", url)
+        logger.info("GET request to url %s", edit_url)
 
         # Set a 30-second timeout
         async with httpx.AsyncClient(timeout=30.0) as client:
-            response = await client.get(url)
+            response = await client.get(edit_url)
             response.raise_for_status()
             result = response.json()
+            result["run_url"] = run_url
             logger.info("Tunnel url %s", result)
+            logger.info("Run url %s", run_url)
             return result
     except httpx.ReadTimeout as e:
         logger.error(
