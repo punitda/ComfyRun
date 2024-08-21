@@ -255,6 +255,8 @@ function AppsLayout({ apps }: AppsLayoutProps) {
                     <div className="truncate text-sm font-medium leading-6 text-primary/80 underline">
                       <Link
                         to={`/app/${app.description}/edit`}
+                        rel="noopener noreferrer"
+                        target="_blank"
                       >
                         {app.description}
                       </Link>
