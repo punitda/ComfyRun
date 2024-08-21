@@ -171,8 +171,8 @@ async def delete_app(app_id: str):
     return {"app_id": app_id, "deleted": True}
 
 
-@app.get("/apps/{app_name}/edit-workflow", dependencies=[Depends(verify_api_key)])
-async def get_edit_url(app_name: str):
+@app.get("/apps/{app_name}/workflow-urls", dependencies=[Depends(verify_api_key)])
+async def get_workflow_urls(app_name: str):
     try:
         workspace = await run_modal_command("modal profile current")
         edit_url = f"https://{workspace}--{app_name}-editingworkflow-get-tunnel-url.modal.run"

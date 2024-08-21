@@ -8,7 +8,7 @@ import LoadingIndicator from "~/components/loading-indicator";
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const appName = params.appName;
-  const url = `${process.env.APP_BUILDER_API_BASE_URL}/apps/${appName}/edit-workflow`;
+  const url = `${process.env.APP_BUILDER_API_BASE_URL}/apps/${appName}/workflow-urls`;
 
   try {
     const response = await fetch(url, {
