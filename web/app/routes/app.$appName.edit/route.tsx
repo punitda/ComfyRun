@@ -75,9 +75,9 @@ export default function AppEditPage() {
                 <Alert variant="default" className="pr-12 relative">
                   <AlertTitle>Heads up!</AlertTitle>
                   <AlertDescription>
-                    You can use this page to edit your workflows. Please save
-                    the workflow before closing the page. It runs on CPU to
-                    avoid GPU costs while editing your workflows.
+                    You can use this page to edit your workflows. It runs on CPU
+                    to avoid GPU costs while editing your workflows.Please save
+                    the workflow file before closing the page.
                     <br />
                     Please use this{" "}
                     <Link
