@@ -254,7 +254,7 @@ function AppsLayout({ apps }: AppsLayoutProps) {
                   <td className="py-4 pl-4 pr-8 sm:pl-6 lg:pl-8">
                     <div className="truncate text-sm font-medium leading-6 text-primary/80 underline">
                       <Link
-                        to={app.url}
+                        to={`/app/${app.description}/edit`}
                         rel="noopener noreferrer"
                         target="_blank"
                       >

@@ -1,4 +1,3 @@
-
 import asyncio
 import os
 import json
@@ -15,6 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import StreamingResponse
 import httpx
+from httpx import ReadTimeout
 
 
 from dotenv import load_dotenv
@@ -169,6 +169,40 @@ async def delete_app(app_id: str):
             status_code=500, detail=f"Unable to delete app: {app_id}")
 
     return {"app_id": app_id, "deleted": True}
+
+
+@app.get("/apps/{app_name}/workflow-urls", dependencies=[Depends(verify_api_key)])
+async def get_workflow_urls(app_name: str):
+    try:
+        workspace = await run_modal_command("modal profile current")
+        edit_url = f"https://{workspace}--{app_name}-editingworkflow-get-tunnel-url.modal.run"
+        run_url = f"https://{workspace}--{app_name}-comfyworkflow-ui.modal.run"
+
+        logger.info("GET request to url %s", edit_url)
+
+        # Set a 30-second timeout
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.get(edit_url)
+            response.raise_for_status()
+            result = response.json()
+            result["run_url"] = run_url
+            logger.info("Tunnel url %s", result)
+            logger.info("Run url %s", run_url)
+            return result
+    except httpx.ReadTimeout as e:
+        logger.error(
+            "Request timed out while making a request to %s", e.request.url)
+        raise HTTPException(
+            status_code=504, detail="Request timed out while fetching edit URL") from e
+    except httpx.HTTPError as e:
+        logger.error("HTTP %d %s error occurred while making a request to %s",
+                     response.status_code, response.reason_phrase, e.request.url)
+        raise HTTPException(
+            status_code=500, detail=f"Failed to fetch edit URL: {str(e)}") from e
+    except Exception as e:
+        logger.error("An error occurred: %s", str(e), exc_info=True)
+        raise HTTPException(
+            status_code=500, detail="Internal server error") from e
 
 
 async def deploy_app(payload: CreateAppPayload):
