@@ -1,4 +1,3 @@
-
 import asyncio
 import os
 import json
@@ -191,16 +190,16 @@ async def get_edit_url(app_name: str):
         logger.error(
             "Request timed out while making a request to %s", e.request.url)
         raise HTTPException(
-            status_code=504, detail="Request timed out while fetching edit URL")
+            status_code=504, detail="Request timed out while fetching edit URL") from e
     except httpx.HTTPError as e:
         logger.error("HTTP %d %s error occurred while making a request to %s",
-                     e.response.status_code, e.response.reason_phrase, e.request.url)
-        logger.error("Response content: %s", e.response.text)
+                     response.status_code, response.reason_phrase, e.request.url)
         raise HTTPException(
-            status_code=500, detail=f"Failed to fetch edit URL: {str(e)}")
+            status_code=500, detail=f"Failed to fetch edit URL: {str(e)}") from e
     except Exception as e:
         logger.error("An error occurred: %s", str(e), exc_info=True)
-        raise HTTPException(status_code=500, detail="Internal server error")
+        raise HTTPException(
+            status_code=500, detail="Internal server error") from e
 
 
 async def deploy_app(payload: CreateAppPayload):
