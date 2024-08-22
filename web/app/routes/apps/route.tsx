@@ -330,6 +330,11 @@ function DropdownActionMenu({ app }: DropdownActionMenuProps) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuItem>
+            <Link to={app.url} target="_blank" rel="noopener noreferrer">
+              Run
+            </Link>
+          </DropdownMenuItem>
           <DialogTrigger asChild>
             <DropdownMenuItem>Delete</DropdownMenuItem>
           </DialogTrigger>
