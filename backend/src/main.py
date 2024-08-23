@@ -271,7 +271,9 @@ async def deploy_app(payload: CreateAppPayload):
         yield line
 
     # Yield a line indicating the start of editing workflow deployment
-    yield f"event: stdout\ndata:Now deploying editing workflow\n\n"
+    yield f"event: stdout\ndata:{'='*50}\n\n"
+    yield f"event: stdout\ndata:🚀 Now Deploying Editing Workflow 🚀\n\n"
+    yield f"event: stdout\ndata:{'='*50}\n\n"
 
     # Deploy editing workflow
     async for line in run_command_and_stream("modal deploy editing_workflow.py"):
