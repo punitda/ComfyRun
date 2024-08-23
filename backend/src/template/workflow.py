@@ -4,28 +4,10 @@ import json
 import os
 from config import config
 
-from modal import (App, Image, web_server, build,
-                   Secret, method, forward, web_endpoint, Queue)
-from helpers import (models_volume, MODELS_PATH, MOUNT_PATH,
-                     download_models,  unzip_insight_face_models)
-
-
-current_directory = os.path.dirname(os.path.realpath(__file__))
-
-default_dependencies = "comfy-cli==1.0.36"
-additional_dependencies = config["additional_dependencies"]
-dependencies_str = default_dependencies if not additional_dependencies else f"{default_dependencies}, {additional_dependencies}"
-dependencies: list[str] = [item.strip()
-                           for item in dependencies_str.split(',')]
-
-comfyui_image = (Image.debian_slim(python_version="3.10")
-                 .apt_install("git")
-                 .pip_install(dependencies)
-                 .run_commands("comfy --skip-prompt install --nvidia")
-                 .copy_local_file(f"{current_directory}/custom_nodes.json", "/root/")
-                 .run_commands("comfy --skip-prompt node install-deps --deps=/root/custom_nodes.json")
-                 .copy_local_file(f"{current_directory}/models.json", "/root/")
-                 )
+from modal import (App, web_server, Secret, build)
+from helpers import (models_volume, MODELS_PATH,
+                     download_models, unzip_insight_face_models)
+from comfy_config import comfyui_image
 
 machine_name = config["machine_name"]
 gpu_config = config["gpu"]
@@ -74,53 +56,3 @@ class ComfyWorkflow:
     @web_server(8188, startup_timeout=60)
     def ui(self):
         self._run_comfyui_server()
-
-
-@app.cls(
-    cpu=4.0,
-    memory=16384,
-    image=comfyui_image,
-    timeout=idle_timeout,
-)
-class EditingWorkflow:
-    @build()
-    def download(self):
-        with open("/root/models.json", 'r', encoding='utf-8') as file:
-            models = json.load(file)
-            downloaded = download_models(models, os.environ["CIVITAI_TOKEN"])
-            models_volume.commit()
-            if downloaded:
-                print(
-                    "Copying models to correct directory - This might take a few more seconds")
-                shutil.copytree(
-                    MODELS_PATH, "/root/comfy/ComfyUI/models", dirs_exist_ok=True)
-                print("Models copied!!")
-                unzip_insight_face_models()
-
-    @method()
-    def run_comfy_in_tunnel(self, q):
-        with forward(8888) as tunnel:
-            url = tunnel.url
-            print(f"Starting ComfyUI at {url}")
-            q.put(url)
-            subprocess.run(
-                [
-                    "comfy",
-                    "--skip-prompt",
-                    "launch",
-                    "--",
-                    "--cpu",
-                    "--listen",
-                    "0.0.0.0",
-                    "--port",
-                    "8888",
-                ],
-                check=False
-            )
-
-    @web_endpoint(method="GET")
-    def get_tunnel_url(self):
-        with Queue.ephemeral() as q:
-            self.run_comfy_in_tunnel.spawn(q)
-            url = q.get()
-            return {"edit_url": url}

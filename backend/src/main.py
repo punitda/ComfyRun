@@ -231,39 +231,53 @@ async def deploy_app(payload: CreateAppPayload):
     with open(f"{folder_path}/models.json", "w", encoding='utf-8') as f:
         json.dump(jsonable_encoder(payload.models), f, indent=4)
 
-    process = await asyncio.create_subprocess_shell(
-        "modal deploy workflow.py",
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE,
-        cwd=folder_path,
-        env={**os.environ,
-             "MODAL_TOKEN_ID": os.getenv("MODAL_TOKEN_ID"),
-             "MODAL_TOKEN_SECRET": os.getenv("MODAL_TOKEN_SECRET"),
-             "COLUMNS": "10000",
-             }
-    )
+    async def run_command_and_stream(command):
+        process = await asyncio.create_subprocess_shell(
+            command,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+            cwd=folder_path,
+            env={**os.environ,
+                 "MODAL_TOKEN_ID": os.getenv("MODAL_TOKEN_ID"),
+                 "MODAL_TOKEN_SECRET": os.getenv("MODAL_TOKEN_SECRET"),
+                 "COLUMNS": "10000",
+                 }
+        )
 
-    async def read_stream(stream, event_type):
-        while True:
-            line = await stream.readline()
-            if line:
-                yield f"event: {event_type}\ndata:{line.decode().strip()}\n\n"
-            else:
-                break
+        async def read_stream(stream, event_type):
+            while True:
+                line = await stream.readline()
+                if line:
+                    yield f"event: {event_type}\ndata:{line.decode().strip()}\n\n"
+                else:
+                    break
 
-    async def combine_streams(*streams):
-        for stream in streams:
-            async for item in stream:
-                yield item
+        async def combine_streams(*streams):
+            for stream in streams:
+                async for item in stream:
+                    yield item
 
-    stdout_stream = read_stream(process.stdout, "stdout")
-    stderr_stream = read_stream(process.stderr, "stderr")
-    combined_streams = combine_streams(stdout_stream, stderr_stream)
+        stdout_stream = read_stream(process.stdout, "stdout")
+        stderr_stream = read_stream(process.stderr, "stderr")
+        combined_streams = combine_streams(stdout_stream, stderr_stream)
 
-    async for line in combined_streams:
+        async for line in combined_streams:
+            yield line
+
+        await process.wait()
+
+    # Deploy run workflow
+    async for line in run_command_and_stream("modal deploy workflow.py"):
         yield line
 
-    await process.wait()
+    # Yield a line indicating the start of editing workflow deployment
+    yield f"event: stdout\ndata:{'='*50}\n\n"
+    yield f"event: stdout\ndata:🚀 Now Deploying Editing Workflow 🚀\n\n"
+    yield f"event: stdout\ndata:{'='*50}\n\n"
+
+    # Deploy editing workflow
+    async for line in run_command_and_stream("modal deploy editing_workflow.py"):
+        yield line
 
 
 async def extract_nodes_from_workflow(workflow):
