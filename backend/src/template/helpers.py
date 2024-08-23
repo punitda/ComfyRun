@@ -2,6 +2,7 @@ from pathlib import Path
 import subprocess
 import shutil
 import os
+import sys
 from modal import (Volume)
 
 models_volume = Volume.from_name("comfyui-models", create_if_missing=True)
@@ -42,12 +43,23 @@ def download_models(models, civitai_token) -> bool:
         if not checkpoint_path.exists():
             print(f"Downloading {model_name} ....")
             cmd = f"comfy --skip-prompt model download --url {download_url} --relative-path {relative_path} --filename {file_name} --set-civitai-api-token {civitai_token}"
-            download_process = subprocess.Popen(
-                cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            # Wait for the process to complete
-            download_process.wait()
 
-            # Optionally, check the return code and handle any errors
+            with subprocess.Popen(
+                cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                bufsize=1, universal_newlines=True
+            ) as download_process:
+                while True:
+                    output = download_process.stdout.readline()
+                    error = download_process.stderr.readline()
+                    if output == '' and error == '' and download_process.poll() is not None:
+                        break
+                    if output:
+                        print(output.strip(), flush=True)
+                    if error:
+                        print(f"Error: {error.strip()}",
+                              file=sys.stderr, flush=True)
+
+            # Check the return code
             return_code = download_process.returncode
             if return_code != 0:
                 print(f"Model download failed with return code {return_code}")
