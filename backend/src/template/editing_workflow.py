@@ -2,8 +2,7 @@ import subprocess
 import shutil
 import os
 from config import config
-from modal import (App, build,
-                   Secret, method, forward, web_endpoint, Queue)
+from modal import (App, enter, Secret, method, forward, web_endpoint, Queue)
 from helpers import (models_volume, MODELS_PATH, unzip_insight_face_models)
 from comfy_config import comfyui_image
 
@@ -13,7 +12,7 @@ idle_timeout = config["idle_timeout"]
 
 
 app = App(
-    machine_name,
+    f"{machine_name}-editing",
     image=comfyui_image,
     volumes={
         MODELS_PATH: models_volume
@@ -29,11 +28,10 @@ app = App(
     timeout=idle_timeout,
 )
 class EditingWorkflow:
-    @build()
-    def download(self):
-        print("Copying models to correct directory - This might take a few more seconds")
-        shutil.copytree(
-            MODELS_PATH, "/root/comfy/ComfyUI/models", dirs_exist_ok=True)
+    @enter()
+    def move_files(self):
+        print("Copying models")
+        shutil.move(MODELS_PATH, "/root/comfy/ComfyUI/models")
         print("Models copied!!")
         unzip_insight_face_models()
 
