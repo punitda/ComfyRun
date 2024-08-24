@@ -31,9 +31,8 @@ app = App(
 class EditingWorkflow:
     @build()
     def download(self):
-        print("Copying models to correct directory - This might take a few more seconds")
-        shutil.copytree(
-            MODELS_PATH, "/root/comfy/ComfyUI/models", dirs_exist_ok=True)
+        print("Copying models")
+        shutil.move(MODELS_PATH, "/root/comfy/ComfyUI/models")
         print("Models copied!!")
         unzip_insight_face_models()
 
