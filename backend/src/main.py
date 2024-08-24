@@ -175,7 +175,7 @@ async def delete_app(app_id: str):
 async def get_workflow_urls(app_name: str):
     try:
         workspace = await run_modal_command("modal profile current")
-        edit_url = f"https://{workspace}--{app_name}-editingworkflow-get-tunnel-url.modal.run"
+        edit_url = f"https://{workspace}--{app_name}-get-tunnel-url.modal.run"
         run_url = f"https://{workspace}--{app_name}-comfyworkflow-ui.modal.run"
 
         logger.info("GET request to url %s", edit_url)
