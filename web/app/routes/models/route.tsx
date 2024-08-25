@@ -1,9 +1,10 @@
 import { useLoaderData, useNavigate } from "@remix-run/react";
 import { Folder, File, ChevronLeft } from "lucide-react";
-import { json, LoaderFunction } from "@remix-run/node";
+import { json, LoaderFunction, redirect } from "@remix-run/node";
 import { fetchModelsFileForPath } from "~/server/file";
 import { Button } from "~/components/ui/button";
 import { formatRelativeTime } from "~/lib/utils";
+import { requireAuth } from "~/server/auth";
 
 // Updated types
 type FileSystemItem = {
@@ -19,8 +20,13 @@ type LoaderData = {
 };
 
 // Loader function
-export const loader: LoaderFunction = async ({ request }) => {
-  const url = new URL(request.url);
+export const loader: LoaderFunction = async (args) => {
+  const data = await requireAuth(args);
+  if ("error" in data) {
+    return redirect("/sign-in");
+  }
+
+  const url = new URL(args.request.url);
   const currentPath = url.searchParams.get("path") || "";
 
   try {
