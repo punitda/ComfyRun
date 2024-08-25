@@ -6,7 +6,6 @@ import { Button } from "~/components/ui/button";
 import { formatRelativeTime } from "~/lib/utils";
 import { requireAuth } from "~/server/auth";
 
-// Updated types
 type FileSystemItem = {
   Filename: string;
   Type: "dir" | "file";
@@ -19,7 +18,6 @@ type LoaderData = {
   currentPath: string;
 };
 
-// Loader function
 export const loader: LoaderFunction = async (args) => {
   const data = await requireAuth(args);
   if ("error" in data) {
@@ -41,8 +39,7 @@ export const loader: LoaderFunction = async (args) => {
   }
 };
 
-// Main component
-export default function FileBrowser() {
+export default function ModelsBrowser() {
   const { items, currentPath } = useLoaderData<LoaderData>();
   const navigate = useNavigate();
 
