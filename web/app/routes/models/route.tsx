@@ -102,19 +102,19 @@ export default function FileBrowser() {
                     </th>
                     <th
                       scope="col"
-                      className="px-3 py-3.5 text-left text-sm font-semibold text-primary"
+                      className="hidden sm:table-cell px-3 py-3.5 text-left text-sm font-semibold text-primary"
                     >
                       Type
                     </th>
                     <th
                       scope="col"
-                      className="px-3 py-3.5 text-left text-sm font-semibold text-primary"
+                      className="hidden sm:table-cell px-3 py-3.5 text-left text-sm font-semibold text-primary"
                     >
                       Last Modified
                     </th>
                     <th
                       scope="col"
-                      className="px-3 py-3.5 text-left text-sm font-semibold text-primary"
+                      className="hidden sm:table-cell px-3 py-3.5 text-left text-sm font-semibold text-primary"
                     >
                       Size
                     </th>
@@ -148,13 +148,13 @@ export default function FileBrowser() {
                             </span>
                           </div>
                         </td>
-                        <td className="whitespace-nowrap px-3 py-4 text-sm text-primary">
+                        <td className="hidden sm:table-cell whitespace-nowrap px-3 py-4 text-sm text-primary">
                           {item.Type === "dir" ? "Directory" : "File"}
                         </td>
-                        <td className="whitespace-nowrap px-3 py-4 text-sm text-primary">
+                        <td className="hidden sm:table-cell whitespace-nowrap px-3 py-4 text-sm text-primary">
                           {formatRelativeTime(item["Created/Modified"])}
                         </td>
-                        <td className="whitespace-nowrap px-3 py-4 text-sm text-primary">
+                        <td className="hidden sm:table-cell whitespace-nowrap px-3 py-4 text-sm text-primary">
                           {item.Type === "file" && item.Size ? item.Size : ""}
                         </td>
                       </tr>
