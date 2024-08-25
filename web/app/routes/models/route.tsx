@@ -50,76 +50,124 @@ export default function FileBrowser() {
 
   const isRootDirectory = currentPath === "";
 
-  const renderItem = (item: FileSystemItem) => (
-    <div
-      key={item.Filename}
-      className="flex items-center py-4 px-4 hover:bg-accent cursor-pointer"
-      onClick={() => item.Type === "dir" && navigateToFolder(item.Filename)}
-    >
-      <div className="flex-1 flex items-center min-w-0">
-        {item.Type === "dir" ? (
-          <Folder size={16} className="mr-2 text-primary flex-shrink-0" />
-        ) : (
-          <File size={16} className="mr-2 text-primary/90 flex-shrink-0" />
-        )}
-        <span className="text-sm truncate">
-          {item.Filename.split("/").pop()}
-        </span>
-      </div>
-      <div className="hidden sm:flex items-center space-x-4 flex-shrink-0">
-        <span className="text-xs text-primary w-20">
-          {item.Type === "dir" ? "Directory" : "File"}
-        </span>
-        <span className="text-xs text-primary w-32">
-          {formatRelativeTime(item["Created/Modified"])}
-        </span>
-        {item.Type === "file" && item.Size && (
-          <span className="text-xs text-primary w-16">{item.Size}</span>
-        )}
-      </div>
-    </div>
-  );
-
-  const hasFiles = items.some((item) => item.Type === "file");
-
   return (
-    <div className="lg:px-32 px-16 mt-32">
-      <div className="flex flex-col h-full">
-        <div className="flex items-center justify-between py-2">
-          <div className="flex items-center min-w-0">
-            {!isRootDirectory && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="mr-2 flex-shrink-0"
-                onClick={navigateBack}
-              >
-                <ChevronLeft size={16} />
-              </Button>
-            )}
+    <div className="px-16 lg:px-32 mt-32">
+      <div className="sm:flex sm:items-center">
+        <div className="flex items-center">
+          {!isRootDirectory && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="mr-2 flex-shrink-0"
+              onClick={navigateBack}
+            >
+              <ChevronLeft size={16} />
+            </Button>
+          )}
+          <div>
             <h1 className="text-base font-semibold leading-6 text-primary/90">
-              {isRootDirectory
-                ? "comfyui-models"
-                : currentPath.split("/").pop()}
+              {isRootDirectory ? "Models" : currentPath.split("/").pop()}
             </h1>
+            {isRootDirectory ? (
+              <p className="mt-2 text-sm text-primary/90">
+                A list of models stored in{" "}
+                <span>
+                  <a
+                    href="https://modal.com/docs/guide/volumes"
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="underline"
+                  >
+                    Modal.Volume
+                  </a>
+                </span>{" "}
+                shared between your apps.
+              </p>
+            ) : null}
           </div>
         </div>
-        <div className="flex-1 overflow-auto">
-          <div className="border border-gray-200 rounded-md overflow-hidden">
-            <div className="hidden sm:flex items-center py-4 text-sm font-medium text-primary border-b bg-accent/50 px-4">
-              <span className="flex-1">Name</span>
-              <div className="flex items-center space-x-4 flex-shrink-0">
-                <span className="w-20">Type</span>
-                <span className="w-32">Last modified</span>
-                {hasFiles && <span className="w-16">Size</span>}
-              </div>
-            </div>
-            <div className="divide-y">
-              {items.length > 0 ? (
-                items.map(renderItem)
-              ) : (
-                <div className="py-4 text-center text-primary">No files</div>
-              )}
+      </div>
+      <div className="mt-8 flow-root">
+        <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+          <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+            <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
+              <table className="min-w-full divide-y divide-gray-300">
+                <thead className="bg-accent/50">
+                  <tr>
+                    <th
+                      scope="col"
+                      className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-primary sm:pl-6"
+                    >
+                      Name
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-3 py-3.5 text-left text-sm font-semibold text-primary"
+                    >
+                      Type
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-3 py-3.5 text-left text-sm font-semibold text-primary"
+                    >
+                      Last Modified
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-3 py-3.5 text-left text-sm font-semibold text-primary"
+                    >
+                      Size
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200 bg-white">
+                  {items.length > 0 ? (
+                    items.map((item) => (
+                      <tr
+                        key={item.Filename}
+                        className="hover:bg-accent cursor-pointer"
+                        onClick={() =>
+                          item.Type === "dir" && navigateToFolder(item.Filename)
+                        }
+                      >
+                        <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-primary sm:pl-6">
+                          <div className="flex items-center">
+                            {item.Type === "dir" ? (
+                              <Folder
+                                size={16}
+                                className="mr-2 text-primary flex-shrink-0"
+                              />
+                            ) : (
+                              <File
+                                size={16}
+                                className="mr-2 text-primary/90 flex-shrink-0"
+                              />
+                            )}
+                            <span className="truncate">
+                              {item.Filename.split("/").pop()}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-4 text-sm text-primary">
+                          {item.Type === "dir" ? "Directory" : "File"}
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-4 text-sm text-primary">
+                          {formatRelativeTime(item["Created/Modified"])}
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-4 text-sm text-primary">
+                          {item.Type === "file" && item.Size ? item.Size : ""}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={4} className="py-4 text-center text-primary">
+                        No files
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
