@@ -7,7 +7,8 @@ import uuid
 import logging
 from contextlib import asynccontextmanager
 
-from typing import Dict, Annotated
+from typing import Dict, Annotated, Optional
+from urllib.parse import unquote
 
 from fastapi import FastAPI, File, Header, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
@@ -203,6 +204,14 @@ async def get_workflow_urls(app_name: str):
         logger.error("An error occurred: %s", str(e), exc_info=True)
         raise HTTPException(
             status_code=500, detail="Internal server error") from e
+
+
+@app.get("/models", dependencies=[Depends(verify_api_key)])
+async def file_browser(path: Optional[str] = None):
+    decoded_path = unquote(path) if path else ''
+    command = f"modal volume ls comfyui-models {decoded_path} --json"
+    files_json = await run_modal_command(command.strip())
+    return json.loads(files_json)
 
 
 async def deploy_app(payload: CreateAppPayload):
