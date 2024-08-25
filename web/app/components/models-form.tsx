@@ -33,7 +33,7 @@ import {
 import { Model } from "~/lib/types";
 import { cn, isValidModelFileName, isValidModelUrl } from "~/lib/utils";
 import { CivitAIModelComboBox, loader } from "~/routes/civitai-search/route";
-import { useFetcher } from "@remix-run/react";
+import { Link, useFetcher } from "@remix-run/react";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 
 export interface ModelsFormProps {
@@ -105,9 +105,20 @@ export default function ModelsForm({
               </PopoverTrigger>
               <PopoverContent className="w-96">
                 <p className="text-primary/90 text-sm mt-1">
-                  Models are shared between apps. If you&#39;ve already
+                  Models are shared between apps. If you&#39;ve already{" "}
                   downloaded all the models you need during the previous app
                   builds you can skip this step :)
+                </p>
+                <p className="text-primary/90 text-sm mt-2">
+                  You can find list of all the models you have downloaded{" "}
+                  <Link
+                    to="/models"
+                    className="underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    here
+                  </Link>
                 </p>
               </PopoverContent>
             </Popover>
