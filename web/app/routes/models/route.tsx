@@ -76,7 +76,7 @@ export default function FileBrowser() {
             </h1>
             {isRootDirectory ? (
               <p className="mt-2 text-sm text-primary/90">
-                A list of models stored in{" "}
+                A list of downloaded models stored in{" "}
                 <span>
                   <a
                     href="https://modal.com/docs/guide/volumes"
