@@ -187,6 +187,7 @@ async def get_workflow_urls(app_name: str):
             response.raise_for_status()
             result = response.json()
             result["run_url"] = run_url
+            result["edit_url"] = f"{result['edit_url']}?edit_workflow=true"
             logger.info("Tunnel url %s", result)
             logger.info("Run url %s", run_url)
             return result
