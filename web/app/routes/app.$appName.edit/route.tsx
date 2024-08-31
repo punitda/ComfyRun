@@ -1,10 +1,18 @@
 import { LoaderFunctionArgs, json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { useEffect, useState } from "react";
-import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
-import { X } from "lucide-react";
 
 import LoadingIndicator from "~/components/loading-indicator";
+import { Button } from "~/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "~/components/ui/dialog";
+import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
+import { X } from "lucide-react";
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const appName = params.appName;
@@ -38,6 +46,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
 export default function AppEditPage() {
   const data = useLoaderData<typeof loader>();
   const [isLoading, setIsLoading] = useState(true);
+  const [showDialog, setShowDialog] = useState(false);
   const [showAlert, setShowAlert] = useState(true);
 
   // Once the edit url is loaded, wait 15 seconds before setting isLoading to false
@@ -51,6 +60,20 @@ export default function AppEditPage() {
       return () => clearTimeout(timer);
     }
   }, [data]);
+
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      console.log("Received message:", event);
+      const data = JSON.parse(event.data);
+
+      if (data.type === "show_edit_page_prompt") {
+        setShowDialog(true);
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, []);
 
   if ("error" in data) {
     return <div className="text-rose-500">{data.error}</div>;
@@ -70,16 +93,44 @@ export default function AppEditPage() {
                 className="w-full h-full border-0"
               />
             )}
+            <Dialog open={showDialog} onOpenChange={setShowDialog}>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Heads up!</DialogTitle>
+                  <DialogDescription>
+                    You can only quickly edit your workflows on this page as it
+                    runs on CPU. Use the Run button below to open a new tab
+                    where you can run your workflows on GPUs.
+                    <br />
+                    Note: Remember to save the workflow file before closing the
+                    page.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="mt-4 flex justify-end space-x-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowDialog(false)}
+                  >
+                    Close
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setShowDialog(false);
+                      window.open(data.runUrl, "_blank");
+                    }}
+                  >
+                    Run
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
             {showAlert && (
               <div className="absolute top-4 left-4 right-4 z-10">
                 <Alert variant="default" className="pr-12 relative">
                   <AlertTitle>Heads up!</AlertTitle>
                   <AlertDescription>
-                    You can use this page to edit your workflows. It runs on CPU
-                    to avoid GPU costs while editing your workflows.Please save
-                    the workflow file before closing the page.
-                    <br />
-                    Please use this{" "}
+                    You can only quickly edit your workflows on this page as it
+                    runs on CPU. Use this{" "}
                     <Link
                       to={data.runUrl}
                       className="underline"
@@ -88,7 +139,11 @@ export default function AppEditPage() {
                     >
                       link
                     </Link>{" "}
-                    to run your workflows on GPUs
+                    to run your workflows on GPUs.
+                    <br />
+                    <br />
+                    Note: Remember to save the workflow file before closing the
+                    page.
                   </AlertDescription>
                   <button
                     onClick={() => setShowAlert(false)}
