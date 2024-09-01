@@ -112,3 +112,8 @@ export interface TimeInterval {
 export type APIResponse<T> =
   | { result: "success"; data: T }
   | { result: "error"; error: string };
+
+export type UploadWorkflowFileResponse = {
+  nodes: CustomNode[];
+  models: Model[];
+};

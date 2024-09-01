@@ -51,11 +51,14 @@ async def lifespan(app: FastAPI):
         raise RuntimeError(error_msg)
 
     # Fetch node map json
-    global ext_node_map
+    global ext_node_map, ext_model_map
     node_map = await fetch_node_map()
     # Need to reorder and put some custom_nodes at the top otherwise comfyui cli picks up other random nodes during the lookup from workflow.json files
     ext_node_map = reorder_dict(
         node_map, ["https://github.com/cubiq/ComfyUI_IPAdapter_plus"])
+
+    model_list = await fetch_model_list()
+    ext_model_map = {model['filename']: model for model in model_list['models']}
 
     # Set model credentials for running modal commands
     command = f"modal token set --token-id {os.getenv('MODAL_TOKEN_ID')} --token-secret {os.getenv('MODAL_TOKEN_SECRET')}"
@@ -83,6 +86,7 @@ app.add_middleware(
 )
 
 ext_node_map: Dict = {}
+ext_model_map: Dict = {}
 tasks = {}
 
 
@@ -117,7 +121,8 @@ async def app_logs(task_id: str):
 async def generate_custom_nodes(workflow_file: Annotated[bytes, File()]):
     workflow = json.loads(workflow_file.decode("utf-8"))
     custom_nodes, _ = await extract_nodes_from_workflow(workflow)
-    return custom_nodes
+    models = extract_models(workflow, ext_model_map)
+    return {"custom_nodes": custom_nodes, "models": models}
 
 
 def verify_api_key(api_key: Annotated[str, Header(alias="X_API_KEY")]):
@@ -362,6 +367,17 @@ async def fetch_node_map():
             return local_node_map
 
 
+async def fetch_model_list():
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.get("https://raw.githubusercontent.com/ltdrdata/ComfyUI-Manager/main/model-list.json")
+            response.raise_for_status()
+            return response.json()
+        except httpx.HTTPError:
+            logger.error("Unable to fetch model list json from ComfyUIManager")
+            return local_node_map
+
+
 def reorder_dict(original_dict, keys_to_move_first):
     # Convert keys_to_move_first to a set for O(1) lookup
     keys_set = set(keys_to_move_first)
@@ -408,3 +424,20 @@ async def run_modal_command(command: str) -> str:
         logger.exception(
             "An error occurred while running command '%s': %s", command, str(e))
         raise
+
+
+def extract_models(workflow, model_dict):
+    pattern = re.compile(r'.*\.(safetensors|bin|sft)$')
+    widget_values = set()
+
+    for node in workflow.get('nodes', []):
+        for value in node.get('widgets_values', []):
+            if isinstance(value, str) and pattern.match(value):
+                widget_values.add(value)
+
+    models = [model_dict[filename]
+              for filename in widget_values if filename in model_dict]
+
+    logger.info("matching models: %s", models)
+
+    return models

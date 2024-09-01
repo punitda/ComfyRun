@@ -101,6 +101,10 @@ export default function CreateAppPage() {
   );
   const [selectedCustomNodesFromWFFile, setSelectedCustomNodesFromWFFile] =
     useState<CustomNode[]>([]);
+
+  const [selectedModelsFromWFFile, setSelectedModelsFromWFFile] = useState<
+    Model[]
+  >([]);
   const [selectedComfyUIModels, setSelectedComfyUIModels] = useState<Model[]>(
     []
   );
@@ -136,6 +140,10 @@ export default function CreateAppPage() {
 
   function updateSelectedCustomNodesFromWFFile(custom_nodes: CustomNode[]) {
     setSelectedCustomNodesFromWFFile(custom_nodes);
+  }
+
+  function updateSelectedModelsFromWFFile(models: Model[]) {
+    setSelectedModelsFromWFFile(models);
   }
 
   function updateSelectedComfyUIModels(models: Model[]) {
@@ -183,6 +191,7 @@ export default function CreateAppPage() {
                 nodes={custom_nodes}
                 onNodesSelected={updateSelectedCustomNodes}
                 onNodesGeneratedFromWFFile={updateSelectedCustomNodesFromWFFile}
+                onModelsGeneratedFromWFFile={updateSelectedModelsFromWFFile}
                 onNextStep={(e) => {
                   e.preventDefault();
                   updateSteps(steps, 1);
@@ -195,6 +204,7 @@ export default function CreateAppPage() {
                 selectedComfyUIModels={selectedComfyUIModels}
                 selectedCivitAIModels={selectedCivitaiModels}
                 selectedCustomModels={selectedCustomModels}
+                selectedModelsFromWFFile={selectedModelsFromWFFile}
                 onComfyUIModelsSelected={updateSelectedComfyUIModels}
                 onCivitAIModelsSelected={updateSelectedCivitaiModels}
                 onCustomModelAdded={onCustomModelAdded}
@@ -219,6 +229,7 @@ export default function CreateAppPage() {
                     selectedCivitaiModels
                       .concat(selectedComfyUIModels)
                       .concat(selectedCustomModels)
+                      .concat(selectedModelsFromWFFile)
                   )}
                   onBackStep={(e) => {
                     e.preventDefault();

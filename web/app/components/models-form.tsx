@@ -34,13 +34,18 @@ import { Model } from "~/lib/types";
 import { cn, isValidModelFileName, isValidModelUrl } from "~/lib/utils";
 import { CivitAIModelComboBox, loader } from "~/routes/civitai-search/route";
 import { Link, useFetcher } from "@remix-run/react";
-import { InformationCircleIcon } from "@heroicons/react/24/outline";
+import {
+  InformationCircleIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
+} from "@heroicons/react/24/outline";
 
 export interface ModelsFormProps {
   models: Model[];
   selectedComfyUIModels: Model[];
   selectedCivitAIModels: Model[];
   selectedCustomModels: Model[];
+  selectedModelsFromWFFile: Model[];
   onComfyUIModelsSelected: (model: Model[]) => void;
   onCivitAIModelsSelected: (model: Model[]) => void;
   onCustomModelAdded: (model: Model) => void;
@@ -53,6 +58,7 @@ export default function ModelsForm({
   selectedComfyUIModels,
   selectedCivitAIModels,
   selectedCustomModels,
+  selectedModelsFromWFFile,
   onComfyUIModelsSelected,
   onCivitAIModelsSelected,
   onCustomModelAdded,
@@ -66,9 +72,57 @@ export default function ModelsForm({
   }, []);
 
   const [skipModelsDownload, setSkipModelsDownload] = useState<boolean>(false);
+  const [isWFFileSectionOpen, setIsWFFileSectionOpen] = useState<boolean>(true);
+
   return (
     <div>
       <div className="px-4 py-6 sm:p-8">
+        {selectedModelsFromWFFile.length > 0 && (
+          <div className="mb-4 p-4 border border-gray-300 rounded-md">
+            <div
+              className="flex justify-between items-center cursor-pointer"
+              onClick={() => setIsWFFileSectionOpen(!isWFFileSectionOpen)}
+            >
+              <span className="font-semibold text-sm">
+                Models selected from workflow file
+              </span>
+              {isWFFileSectionOpen ? (
+                <ChevronUpIcon className="h-5 w-5" />
+              ) : (
+                <ChevronDownIcon className="h-5 w-5" />
+              )}
+            </div>
+            {isWFFileSectionOpen && (
+              <>
+                <ul className="mt-2 text-sm text-gray-700">
+                  {selectedModelsFromWFFile.map((model) => (
+                    <li
+                      key={model.url + model.name}
+                      className="flex items-center"
+                    >
+                      <span className="mr-2">•</span>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <span className="cursor-pointer underline">
+                            {model.name}
+                          </span>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-96">
+                          <p className="text-sm">{model.description}</p>
+                        </PopoverContent>
+                      </Popover>
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-2 text-sm text-gray-500">
+                  Note: The auto-selected models from the workflow file may not
+                  always be 100% accurate. Please review and add missing models
+                  manually if needed.
+                </p>
+              </>
+            )}
+          </div>
+        )}
         <div className="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
           <div className="sm:col-span-4">
             <Label>Add Models from ComfyUIManager</Label>
@@ -142,7 +196,8 @@ export default function ModelsForm({
             selectedCivitAIModels.length === 0 &&
             selectedComfyUIModels.length === 0 &&
             selectedCustomModels.length === 0 &&
-            !skipModelsDownload
+            !skipModelsDownload &&
+            selectedModelsFromWFFile.length === 0
           }
         >
           Next
