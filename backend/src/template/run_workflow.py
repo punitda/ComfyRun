@@ -7,16 +7,16 @@ from config import config
 from modal import (App, web_server, Secret, build)
 from helpers import (models_volume, MODELS_PATH,
                      download_models, unzip_insight_face_models)
-from comfy_config import comfyui_image
+from comfy_config import create_comfyui_image
 
 machine_name = config["machine_name"]
 gpu_config = config["gpu"]
 idle_timeout = config["idle_timeout"]
 
-
+image = create_comfyui_image(use_nvidia=True)
 app = App(
     machine_name,
-    image=comfyui_image,
+    image=image,
     volumes={
         MODELS_PATH: models_volume
     },
@@ -26,7 +26,7 @@ app = App(
 
 @app.cls(
     gpu=gpu_config,
-    image=comfyui_image,
+    image=image,
     timeout=idle_timeout,
     container_idle_timeout=idle_timeout,
     allow_concurrent_inputs=100,

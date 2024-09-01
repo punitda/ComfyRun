@@ -176,31 +176,16 @@ async def delete_app(app_id: str):
 async def get_workflow_urls(app_name: str):
     try:
         workspace = await run_modal_command("modal profile current")
-        edit_url = f"https://{workspace}--{app_name}-get-tunnel-url.modal.run"
+        edit_url = f"https://{workspace}--{app_name}-editingworkflow-ui.modal.run"
         run_url = f"https://{workspace}--{app_name}-comfyworkflow-ui.modal.run"
 
-        logger.info("GET request to url %s", edit_url)
+        result = {
+            "run_url": run_url,
+            "edit_url": f"{edit_url}?edit_workflow=true"
+        }
 
-        # Set a 30-second timeout
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            response = await client.get(edit_url)
-            response.raise_for_status()
-            result = response.json()
-            result["run_url"] = run_url
-            result["edit_url"] = f"{result['edit_url']}?edit_workflow=true"
-            logger.info("Tunnel url %s", result)
-            logger.info("Run url %s", run_url)
-            return result
-    except httpx.ReadTimeout as e:
-        logger.error(
-            "Request timed out while making a request to %s", e.request.url)
-        raise HTTPException(
-            status_code=504, detail="Request timed out while fetching edit URL") from e
-    except httpx.HTTPError as e:
-        logger.error("HTTP %d %s error occurred while making a request to %s",
-                     response.status_code, response.reason_phrase, e.request.url)
-        raise HTTPException(
-            status_code=500, detail=f"Failed to fetch edit URL: {str(e)}") from e
+        logger.info("Workflow URLs: %s", result)
+        return result
     except Exception as e:
         logger.error("An error occurred: %s", str(e), exc_info=True)
         raise HTTPException(
