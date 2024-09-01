@@ -47,6 +47,7 @@ export default function AppEditPage() {
   const data = useLoaderData<typeof loader>();
   const [isIframeLoaded, setIsIframeLoaded] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
+  const [showAlert, setShowAlert] = useState(true);
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
@@ -111,23 +112,29 @@ export default function AppEditPage() {
             </div>
           </DialogContent>
         </Dialog>
-        {isIframeLoaded && (
+        {isIframeLoaded && showAlert && (
           <div className="absolute top-4 left-4 right-4 z-10">
             <Alert variant="default" className="pr-12 relative">
               <AlertTitle>Heads up!</AlertTitle>
               <AlertDescription>
-                You can use this page to edit your workflows. It runs on CPU to
-                avoid GPU costs while editing your workflows. Please save the
-                workflow file before closing the page.
+                You can only quickly edit your workflows on this page as it runs
+                on CPU. Use this{" "}
+                <Link
+                  to={data.runUrl}
+                  className="underline"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  link
+                </Link>{" "}
+                to run your workflows on GPUs.
                 <br />
-                Use the Run button to open a new tab where you can run your
-                workflows on GPUs.
+                <br />
+                Note: Remember to save the workflow file before closing the
+                page.
               </AlertDescription>
               <button
-                onClick={() => {
-                  const alert = document.querySelector(".alert");
-                  if (alert) alert.remove();
-                }}
+                onClick={() => setShowAlert(false)}
                 className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-200 transition-colors"
                 aria-label="Close alert"
               >
