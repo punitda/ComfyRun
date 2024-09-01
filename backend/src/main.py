@@ -121,7 +121,8 @@ async def app_logs(task_id: str):
 async def generate_custom_nodes(workflow_file: Annotated[bytes, File()]):
     workflow = json.loads(workflow_file.decode("utf-8"))
     custom_nodes, _ = await extract_nodes_from_workflow(workflow)
-    return custom_nodes
+    models = extract_models(workflow, ext_model_map)
+    return {"custom_nodes": custom_nodes, "models": models}
 
 
 def verify_api_key(api_key: Annotated[str, Header(alias="X_API_KEY")]):
@@ -423,3 +424,20 @@ async def run_modal_command(command: str) -> str:
         logger.exception(
             "An error occurred while running command '%s': %s", command, str(e))
         raise
+
+
+def extract_models(workflow, model_dict):
+    pattern = re.compile(r'.*\.(safetensors|bin|sft)$')
+    widget_values = set()
+
+    for node in workflow.get('nodes', []):
+        for value in node.get('widgets_values', []):
+            if isinstance(value, str) and pattern.match(value):
+                widget_values.add(value)
+
+    models = [model_dict[filename]
+              for filename in widget_values if filename in model_dict]
+
+    logger.info("matching models: %s", models)
+
+    return models
