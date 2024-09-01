@@ -34,7 +34,11 @@ import { Model } from "~/lib/types";
 import { cn, isValidModelFileName, isValidModelUrl } from "~/lib/utils";
 import { CivitAIModelComboBox, loader } from "~/routes/civitai-search/route";
 import { Link, useFetcher } from "@remix-run/react";
-import { InformationCircleIcon } from "@heroicons/react/24/outline";
+import {
+  InformationCircleIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
+} from "@heroicons/react/24/outline";
 
 export interface ModelsFormProps {
   models: Model[];
@@ -48,9 +52,6 @@ export interface ModelsFormProps {
   onNextStep: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
   onBackStep: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 }
-
-import { useState } from "react";
-import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline";
 
 export default function ModelsForm({
   models,
