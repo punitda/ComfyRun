@@ -51,11 +51,14 @@ async def lifespan(app: FastAPI):
         raise RuntimeError(error_msg)
 
     # Fetch node map json
-    global ext_node_map
+    global ext_node_map, ext_model_map
     node_map = await fetch_node_map()
     # Need to reorder and put some custom_nodes at the top otherwise comfyui cli picks up other random nodes during the lookup from workflow.json files
     ext_node_map = reorder_dict(
         node_map, ["https://github.com/cubiq/ComfyUI_IPAdapter_plus"])
+
+    model_list = await fetch_model_list()
+    ext_model_map = {model['filename']: model for model in model_list['models']}
 
     # Set model credentials for running modal commands
     command = f"modal token set --token-id {os.getenv('MODAL_TOKEN_ID')} --token-secret {os.getenv('MODAL_TOKEN_SECRET')}"
@@ -83,6 +86,7 @@ app.add_middleware(
 )
 
 ext_node_map: Dict = {}
+ext_model_map: Dict = {}
 tasks = {}
 
 
@@ -359,6 +363,17 @@ async def fetch_node_map():
             return response.json()
         except httpx.HTTPError:
             logger.error("Unable to fetch node map json from ComfyUIManager")
+            return local_node_map
+
+
+async def fetch_model_list():
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.get("https://raw.githubusercontent.com/ltdrdata/ComfyUI-Manager/main/model-list.json")
+            response.raise_for_status()
+            return response.json()
+        except httpx.HTTPError:
+            logger.error("Unable to fetch model list json from ComfyUIManager")
             return local_node_map
 
 
