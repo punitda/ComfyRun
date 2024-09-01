@@ -45,21 +45,8 @@ export async function loader({ params }: LoaderFunctionArgs) {
 
 export default function AppEditPage() {
   const data = useLoaderData<typeof loader>();
-  const [isLoading, setIsLoading] = useState(true);
+  const [isIframeLoaded, setIsIframeLoaded] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
-  const [showAlert, setShowAlert] = useState(true);
-
-  // Once the edit url is loaded, wait 15 seconds before setting isLoading to false
-  // This is to prevent the iframe from loading too quickly and giving error because the tunnel is not ready
-  useEffect(() => {
-    if ("editUrl" in data) {
-      const timer = setTimeout(() => {
-        setIsLoading(false);
-      }, 15000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [data]);
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
@@ -82,80 +69,72 @@ export default function AppEditPage() {
   return (
     <div className="h-screen flex flex-col relative">
       <div className="flex-grow relative">
-        {isLoading ? (
-          <LoadingIndicator />
-        ) : (
-          <>
-            {data.editUrl && (
-              <iframe
-                title={data.editUrl}
-                src={data.editUrl}
-                className="w-full h-full border-0"
-              />
-            )}
-            <Dialog open={showDialog} onOpenChange={setShowDialog}>
-              <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>Heads up!</DialogTitle>
-                  <DialogDescription>
-                    You can only quickly edit your workflows on this page as it
-                    runs on CPU. Use the Run button below to open a new tab
-                    where you can run your workflows on GPUs.
-                    <br />
-                    Note: Remember to save the workflow file before closing the
-                    page.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="mt-4 flex justify-end space-x-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowDialog(false)}
-                  >
-                    Close
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      setShowDialog(false);
-                      window.open(data.runUrl, "_blank");
-                    }}
-                  >
-                    Run
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
-            {showAlert && (
-              <div className="absolute top-4 left-4 right-4 z-10">
-                <Alert variant="default" className="pr-12 relative">
-                  <AlertTitle>Heads up!</AlertTitle>
-                  <AlertDescription>
-                    You can only quickly edit your workflows on this page as it
-                    runs on CPU. Use this{" "}
-                    <Link
-                      to={data.runUrl}
-                      className="underline"
-                      rel="noopener noreferrer"
-                      target="_blank"
-                    >
-                      link
-                    </Link>{" "}
-                    to run your workflows on GPUs.
-                    <br />
-                    <br />
-                    Note: Remember to save the workflow file before closing the
-                    page.
-                  </AlertDescription>
-                  <button
-                    onClick={() => setShowAlert(false)}
-                    className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-200 transition-colors"
-                    aria-label="Close alert"
-                  >
-                    <X size={16} />
-                  </button>
-                </Alert>
-              </div>
-            )}
-          </>
+        {!isIframeLoaded && <LoadingIndicator />}
+        {data.editUrl && (
+          <iframe
+            title={data.editUrl}
+            src={data.editUrl}
+            className={`w-full h-full border-0 ${
+              isIframeLoaded ? "" : "hidden"
+            }`}
+            onLoad={() => {
+              setIsIframeLoaded(true);
+            }}
+          />
+        )}
+        <Dialog open={showDialog} onOpenChange={setShowDialog}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Heads up!</DialogTitle>
+              <DialogDescription>
+                You can only quickly edit your workflows on this page as it runs
+                on CPU. Use the Run button below to open a new tab where you can
+                run your workflows on GPUs.
+                <br />
+                <br />
+                Note: Remember to save the workflow file before closing the
+                page.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="mt-4 flex justify-end space-x-2">
+              <Button variant="outline" onClick={() => setShowDialog(false)}>
+                Close
+              </Button>
+              <Button
+                onClick={() => {
+                  setShowDialog(false);
+                  window.open(data.runUrl, "_blank");
+                }}
+              >
+                Run
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+        {isIframeLoaded && (
+          <div className="absolute top-4 left-4 right-4 z-10">
+            <Alert variant="default" className="pr-12 relative">
+              <AlertTitle>Heads up!</AlertTitle>
+              <AlertDescription>
+                You can use this page to edit your workflows. It runs on CPU to
+                avoid GPU costs while editing your workflows. Please save the
+                workflow file before closing the page.
+                <br />
+                Use the Run button to open a new tab where you can run your
+                workflows on GPUs.
+              </AlertDescription>
+              <button
+                onClick={() => {
+                  const alert = document.querySelector(".alert");
+                  if (alert) alert.remove();
+                }}
+                className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-200 transition-colors"
+                aria-label="Close alert"
+              >
+                <X size={16} />
+              </button>
+            </Alert>
+          </div>
         )}
       </div>
     </div>
