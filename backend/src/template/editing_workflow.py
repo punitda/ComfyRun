@@ -1,19 +1,19 @@
 import subprocess
 import shutil
-import os
 from config import config
-from modal import (App, enter, Secret, method, forward, web_endpoint, Queue)
+from modal import (App, enter, Secret, web_server)
 from helpers import (models_volume, MODELS_PATH, unzip_insight_face_models)
-from comfy_config import comfyui_image
+from comfy_config import create_comfyui_image
 
 machine_name = config["machine_name"]
 gpu_config = config["gpu"]
 idle_timeout = config["idle_timeout"]
 
+image = create_comfyui_image()
 
 app = App(
     f"{machine_name}-editing",
-    image=comfyui_image,
+    image=image,
     volumes={
         MODELS_PATH: models_volume
     },
@@ -23,9 +23,10 @@ app = App(
 
 @app.cls(
     cpu=4.0,
-    memory=16384,
-    image=comfyui_image,
+    image=image,
     timeout=idle_timeout,
+    allow_concurrent_inputs=100,
+    concurrency_limit=1,
 )
 class EditingWorkflow:
     @enter()
@@ -35,33 +36,10 @@ class EditingWorkflow:
         print("Models copied!!")
         unzip_insight_face_models()
 
-    @method()
-    def run_comfy_in_tunnel(self, q):
-        with forward(8888) as tunnel:
-            url = tunnel.url
-            print(f"Starting ComfyUI at {url}")
-            q.put(url)
-            subprocess.run(
-                [
-                    "comfy",
-                    "--skip-prompt",
-                    "launch",
-                    "--",
-                    "--cpu",
-                    "--listen",
-                    "0.0.0.0",
-                    "--port",
-                    "8888",
-                ],
-                check=False
-            )
+    def _run_comfyui_server(self, port=8188):
+        cmd = f"comfy --skip-prompt launch -- --cpu --listen 0.0.0.0 --port {port}"
+        subprocess.Popen(cmd, shell=True)
 
-
-@app.function()
-@web_endpoint(method="GET")
-def get_tunnel_url():
-    workflow = EditingWorkflow()
-    with Queue.ephemeral() as q:
-        workflow.run_comfy_in_tunnel.spawn(q)
-        url = q.get()
-    return {"edit_url": url}
+    @web_server(8188, startup_timeout=60)
+    def ui(self):
+        self._run_comfyui_server()
