@@ -17,7 +17,7 @@ import {
   PopoverTrigger,
 } from "~/components/ui/popover";
 import { useEffect, useState } from "react";
-import { CustomNode } from "~/lib/types";
+import { CustomNode, Model } from "~/lib/types";
 
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "~/lib/utils";
@@ -34,6 +34,7 @@ export interface CustomNodeFormProps {
   selectedCustomNodes: CustomNode[];
   onNodesSelected: (node: CustomNode[]) => void;
   onNodesGeneratedFromWFFile: (node: CustomNode[]) => void;
+  onModelsGeneratedFromWFFile: (models: Model[]) => void;
   onNextStep: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 }
 export default function CustomNodeForm({
@@ -41,6 +42,7 @@ export default function CustomNodeForm({
   selectedCustomNodes,
   onNodesSelected,
   onNodesGeneratedFromWFFile,
+  onModelsGeneratedFromWFFile,
   onNextStep,
 }: CustomNodeFormProps) {
   const uploadWFFetcher = useFetcher<typeof action>({
@@ -66,6 +68,7 @@ export default function CustomNodeForm({
           <div className="sm:col-span-4">
             <UploadWorkflowFileForm
               onNodesGeneratedFromWFFile={onNodesGeneratedFromWFFile}
+              onModelsGeneratedFromWFFile={onModelsGeneratedFromWFFile}
             />
           </div>
           <div className="relative sm:col-span-4">
@@ -194,10 +197,12 @@ function CustomNodesComboBox({
 
 interface UploadWorkflowFileFormProps {
   onNodesGeneratedFromWFFile: (nodes: CustomNode[]) => void;
+  onModelsGeneratedFromWFFile: (models: Model[]) => void;
 }
 
 function UploadWorkflowFileForm({
   onNodesGeneratedFromWFFile,
+  onModelsGeneratedFromWFFile,
 }: UploadWorkflowFileFormProps) {
   const fetcher = useFetcher<typeof action>({ key: UPLOAD_WF_FETCHER_KEY });
 
@@ -215,9 +220,10 @@ function UploadWorkflowFileForm({
   useEffect(() => {
     if (
       fetcher.data?.result === "success" &&
-      (fetcher.data.data.length ?? 0 > 0)
+      (fetcher.data.data.nodes.length ?? 0 > 0)
     ) {
-      onNodesGeneratedFromWFFile(fetcher.data.data ?? []);
+      onNodesGeneratedFromWFFile(fetcher.data.data.nodes ?? []);
+      onModelsGeneratedFromWFFile(fetcher.data.data.models ?? []);
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -288,7 +294,9 @@ function UploadWorkflowFileForm({
       fetcher.data?.result === "success" &&
       fetcher?.data?.data ? (
         <p className="text-sm mt-2">
-          <span className="font-semibold">{fetcher?.data?.data.length}</span>
+          <span className="font-semibold">
+            {fetcher?.data?.data.nodes?.length}
+          </span>
           <span> nodes selected from the workflow file</span>
         </p>
       ) : null}
