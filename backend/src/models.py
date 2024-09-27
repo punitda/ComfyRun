@@ -19,7 +19,7 @@ class Model(BaseModel):
     name: str
     url: HttpUrl
     path: str
-    filename: Optional[str]
+    filename: Optional[str] = None
 
 
 class Gpu(str, Enum):

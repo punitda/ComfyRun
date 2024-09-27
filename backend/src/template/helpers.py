@@ -25,7 +25,7 @@ def download_models(models, civitai_token) -> bool:
         model_name = model["name"]
         download_url = model["url"]
         download_path = model["path"]
-        file_name = model.get("filename", download_url.split("/")[-1])
+        file_name = model.get("filename") or download_url.split("/")[-1]
         print(f"file_name: {file_name}")
         if file_name in common_model_names:
             checkpoint_path: Path = Path(
