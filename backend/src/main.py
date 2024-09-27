@@ -10,10 +10,11 @@ from contextlib import asynccontextmanager
 from typing import Dict, Annotated, Optional
 from urllib.parse import unquote
 
-from fastapi import FastAPI, File, Header, HTTPException, Depends
+from fastapi import FastAPI, File, Header, HTTPException, Depends, status, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.encoders import jsonable_encoder
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, JSONResponse
 import httpx
 from httpx import ReadTimeout
 
@@ -88,6 +89,16 @@ app.add_middleware(
 ext_node_map: Dict = {}
 ext_model_map: Dict = {}
 tasks = {}
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    error_detail = exc.errors()
+    logger.error(f"Request validation error: {error_detail}")
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content={"detail": error_detail},
+    )
 
 
 @app.post("/app")
